@@ -1,0 +1,8 @@
+version: "0.1"
+services:
+  media:
+    build:
+      context: ./media-service
+      dockerfile: Dockerfile
+    ports:
+      - "9999:8080"
