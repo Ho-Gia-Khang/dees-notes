@@ -3,6 +3,14 @@ services:
   media:
     build:
       context: ./media-service
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     ports:
-      - "9999:8080"
+      - "4300:3000"
+  cloudflare-ddns:
+    build:
+      context: ./cloudflare-ddns
+      dockerfile: dockerfile
+    container_name: cloudflare-ddns
+    volumes:
+      - ./cloudflare-ddns.sh:/usr/local/bin/cloudflare-ddns.sh
+    restart: unless-stopped
