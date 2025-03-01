@@ -11,7 +11,7 @@ RUN chmod +x /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
 RUN ls -l /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
 
 # Create a cron job
-RUN echo "*/5 * * * * /usr/local/bin/bin/cloudflare-ddns/cloudflare-ddns.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/my-cron-job
+RUN echo "*/5 * * * * /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/my-cron-job
 
 # Apply cron job and start cron service
 RUN crontab /etc/cron.d/my-cron-job
