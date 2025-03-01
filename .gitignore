@@ -1,1 +1,2 @@
-nginx/*
+nginx/
+cloudflare-ddns/cloudflare-ddns.sh
