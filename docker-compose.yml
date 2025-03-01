@@ -12,7 +12,7 @@ services:
       dockerfile: dockerfile
     container_name: cloudflare-ddns
     volumes:
-      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
+      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
     restart: unless-stopped
   app:
     image: "jc21/nginx-proxy-manager:latest"
