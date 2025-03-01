@@ -8,7 +8,7 @@
 
 # Basic setup
 
-## 1. Create a file named 'cloudflare-ddns.sh' from the template provided in 'Cloudflare-ddns_example.sh' file. Filled the information required for Cloudflare
+## 1. Create a file name 'cloudflare-ddns.sh' from the template provided in 'Cloudflare-ddns_example.sh' file in the same directory with this file. Filled the information required for Cloudflare
 
 ## 2. Build a docker container
 
