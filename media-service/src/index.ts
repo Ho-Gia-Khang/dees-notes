@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 dotenv.config();
 const app: Express = express();
 
-app.get("/", (_: Request, res: Response) => {
-  res.send("Hello From Home server!");
+app.get("/", (_, res: Response) => {
+  res.status(200).send({ message: "Hello From Media service!" });
 });
 
 const PORT = process.env.PORT || 3000;

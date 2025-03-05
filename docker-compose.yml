@@ -1,11 +1,51 @@
 version: "0.1"
+
+networks:
+  private_net:
+    driver: bridge
+    internal: true # Makes the network isolated from external docker-compose file
+  public_net:
+    driver: bridge
+
 services:
+  ############################################################
+  ### private services, only accessible by 'public-gateway'###
+  ############################################################
+
+  # media gateway - the gateway for public gateway to access media service:
   media:
     build:
       context: ./media-service
       dockerfile: dockerfile
+    container_name: media
+    networks:
+      - private_net
+  # jellyfin - the media server
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    networks:
+      - private_net
+
+  document:
+    build:
+      context: ./document-service
+      dockerfile: dockerfile
+    container_name: document
+    networks:
+      - private_net
+
+  #######################
+  ### public services ###
+  #######################
+  public-gateway:
+    build:
+      context: ./public-gateway
+      dockerfile: dockerfile
     ports:
-      - "4300:3000"
+      - "4300:4300"
+    networks:
+      - private_net
+      - public_net
   cloudflare-ddns:
     build:
       context: ./cloudflare-ddns
