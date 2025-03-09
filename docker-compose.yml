@@ -55,6 +55,7 @@ services:
   ### public services ###
   #######################
   public-gateway:
+    container_name: public-gateway
     build:
       context: ./public-gateway
       dockerfile: dockerfile
@@ -72,7 +73,9 @@ services:
       - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
     restart: unless-stopped
   app:
-    image: "jc21/nginx-proxy-manager:latest"
+    build:
+      context: ./nginx
+      dockerfile: dockerfile
     restart: unless-stopped
     ports:
       # These ports are in format <host-port>:<container-port>
@@ -92,5 +95,5 @@ services:
     # DISABLE_IPV6: 'true'
 
     volumes:
-      - ./nginx/data:/data
-      - ./nginx/letsencrypt:/etc/letsencrypt
+      - ./nginx/data:/etc/nginx/data
+      - ./nginx/letsencrypt:/etc/nginx/letsencrypt
