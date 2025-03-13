@@ -66,16 +66,8 @@ services:
       - public_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host('deesnotes.cloud')"
-      - "traefik.http.services.public-gateway.loadbalancer.server.port=4300"
-  cloudflare-ddns:
-    build:
-      context: ./cloudflare-ddns
-      dockerfile: dockerfile
-    container_name: cloudflare-ddns
-    volumes:
-      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
-    restart: unless-stopped
+      - "traefik.http.routers.public-gateway.rule=Host('deesnotes.cloud')"
+      - "traefik.port=4300"
   app:
     networks:
       - public_net
@@ -104,9 +96,13 @@ services:
     #   - ./nginx/data:/etc/nginx/data
     #   - ./nginx/letsencrypt:/etc/nginx/letsencrypt
 
-    image: traefik:v3.3
-    # Enables the web UI and tells Traefik to listen to docker
-    # command: --api.insecure=true --providers.docker
+    build:
+      context: ./traefik
+      dockerfile: dockerfile
+    command:
+      - --api # Enables the web UI and tells Traefik to listen to docker
+      # - --providers.docker
+      - --docker.exposedByDefault=false
     ports:
       # The HTTP port
       - "80:80" # Public HTTP Port
@@ -115,4 +111,14 @@ services:
       - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./dynamic.yml:/etc/traefik/dynamic.yml
+
+  cloudflare-ddns:
+    build:
+      context: ./cloudflare-ddns
+      dockerfile: dockerfile
+    container_name: cloudflare-ddns
+    volumes:
+      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
+    restart: unless-stopped
