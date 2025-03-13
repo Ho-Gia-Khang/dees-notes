@@ -21,27 +21,27 @@ services:
     networks:
       - private_net
   # jellyfin - the media server
-  jellyfin:
-    image: jellyfin/jellyfin:latest
-    container_name: jellyfin
-    # Add in the UID and GID that you would like to run jellyfin as in the user line below, or remove the user line to use the default (root).
-    # user: uid:gid
-    # network_mode: "host"
-    volumes:
-      - /path/to/config:/usr/local/bin/jellyfin/config
-      - /path/to/cache:/usr/local/bin/jellyfin/cache
-      - type: bind
-        source: /usr/local/bin/jellyfin/media
-        target: /media
-      - type: bind
-        source: /usr/local/bin/jellyfin/media2
-        target: /media2
-        read_only: true
-    # ports:
-    #   - "8096:8096"
-    restart: unless-stopped
-    networks:
-      - private_net
+  # jellyfin:
+  #   image: jellyfin/jellyfin:latest
+  #   container_name: jellyfin
+  #   # Add in the UID and GID that you would like to run jellyfin as in the user line below, or remove the user line to use the default (root).
+  #   # user: uid:gid
+  #   # network_mode: "host"
+  #   volumes:
+  #     - /path/to/config:/usr/local/bin/jellyfin/config
+  #     - /path/to/cache:/usr/local/bin/jellyfin/cache
+  #     - type: bind
+  #       source: /usr/local/bin/jellyfin/media
+  #       target: /media
+  #     - type: bind
+  #       source: /usr/local/bin/jellyfin/media2
+  #       target: /media2
+  #       read_only: true
+  #   # ports:
+  #   #   - "8096:8096"
+  #   restart: unless-stopped
+  #   networks:
+  #     - private_net
 
   document:
     build:
@@ -64,6 +64,10 @@ services:
     networks:
       - private_net
       - public_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host('deesnotes.cloud')"
+      - "traefik.http.services.public-gateway.loadbalancer.server.port=4300"
   cloudflare-ddns:
     build:
       context: ./cloudflare-ddns
@@ -73,27 +77,42 @@ services:
       - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
     restart: unless-stopped
   app:
-    build:
-      context: ./nginx
-      dockerfile: dockerfile
-    restart: unless-stopped
+    networks:
+      - public_net
+    # build:
+    #   context: ./nginx
+    #   dockerfile: dockerfile
+    # restart: unless-stopped
+    # ports:
+    #   # These ports are in format <host-port>:<container-port>
+    #   - "80:80" # Public HTTP Port
+    #   - "443:443" # Public HTTPS Port
+    #   - "81:81" # Admin Web Port
+    #   # Add any other Stream port you want to expose
+    #   # - '21:21' # FTP
+
+    # # Uncomment the next line if you uncomment anything in the section
+    # # environment:
+    # # Uncomment this if you want to change the location of
+    # # the SQLite DB file within the container
+    # # DB_SQLITE_FILE: "/data/database.sqlite"
+
+    # # Uncomment this if IPv6 is not enabled on your host
+    # # DISABLE_IPV6: 'true'
+
+    # volumes:
+    #   - ./nginx/data:/etc/nginx/data
+    #   - ./nginx/letsencrypt:/etc/nginx/letsencrypt
+
+    image: traefik:v3.3
+    # Enables the web UI and tells Traefik to listen to docker
+    # command: --api.insecure=true --providers.docker
     ports:
-      # These ports are in format <host-port>:<container-port>
+      # The HTTP port
       - "80:80" # Public HTTP Port
       - "443:443" # Public HTTPS Port
-      - "81:81" # Admin Web Port
-      # Add any other Stream port you want to expose
-      # - '21:21' # FTP
-
-    # Uncomment the next line if you uncomment anything in the section
-    # environment:
-    # Uncomment this if you want to change the location of
-    # the SQLite DB file within the container
-    # DB_SQLITE_FILE: "/data/database.sqlite"
-
-    # Uncomment this if IPv6 is not enabled on your host
-    # DISABLE_IPV6: 'true'
-
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
     volumes:
-      - ./nginx/data:/etc/nginx/data
-      - ./nginx/letsencrypt:/etc/nginx/letsencrypt
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock

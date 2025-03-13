@@ -1,17 +1,17 @@
-FROM ubuntu:latest
+FROM ubuntu:24.04.2
 
 # Install cron and other necessary packages
 RUN apt-get update && apt-get install -y cron curl jq
 
 # Copy the bash script into the container
-COPY ./cloudflare-ddns.sh /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
-RUN chmod +x /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
+COPY ./cloudflare-ddns.sh /usr/local/bin/cloudflare-ddns.sh
+RUN chmod +x /usr/local/bin/cloudflare-ddns.sh
 
 # Verify the script exists and is executable
-RUN ls -l /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh
+RUN ls -l /usr/local/bin/cloudflare-ddns.sh
 
 # Create a cron job
-RUN echo "*/5 * * * * /usr/local/bin/cloudflare-ddns/cloudflare-ddns.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/my-cron-job
+RUN echo "*/5 * * * * /usr/local/bin/cloudflare-ddns.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/my-cron-job
 
 # Apply cron job and start cron service
 RUN crontab /etc/cron.d/my-cron-job
