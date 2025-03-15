@@ -66,7 +66,6 @@ services:
       - public_net
   app:
     container_name: app
-    # image: jc21/nginx-proxy-manager:latest
     build:
       context: ./nginx
       dockerfile: dockerfile
@@ -91,9 +90,7 @@ services:
 
     volumes:
       - ./nginx/data:/data
-      - ./nginx/letsencrypt:/etc/letsencrypt:rw
-    security_opt:
-      - label:disable
+      - ./nginx/letsencrypt:/etc/letsencrypt:Z
 
   cloudflare-ddns:
     build:

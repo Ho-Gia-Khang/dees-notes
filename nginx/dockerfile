@@ -1,3 +1,4 @@
 FROM jc21/nginx-proxy-manager:latest
 
-CMD sudo chcon svirt_sandbox_file_t /etc/letsencrypt/live
+RUN sudo chmod -R 755 /etc/letsencrypt/live
+RUN sudo chmod -R 755 /etc/letsencrypt/archive
