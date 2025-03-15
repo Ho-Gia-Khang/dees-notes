@@ -16,7 +16,21 @@
 docker compose up --build -d
 ```
 
-## 3. For the next time visit, just run the docker container in your docker manager app or
+## 3. Setup local firewall
+
+### Copy the script in 'hardening-service' to a .sh file in another trustable folder
+
+### Grand execute permission to it
+
+```
+chmod +x /trustable-path/[filename].sh
+```
+
+```
+./trustable-path/[filename].sh
+```
+
+## 4. For the next time visit, just run the docker container in your docker manager app or
 
 ```
 docker compose up
