@@ -70,12 +70,11 @@ services:
       context: ./nginx
       dockerfile: dockerfile
     restart: unless-stopped
-    user: root
     ports:
       # These ports are in format <host-port>:<container-port>
-      - "80:80" # Public HTTP Port
-      - "443:443" # Public HTTPS Port
-      - "81:81" # Admin Web Port
+      - "80:8080" # Public HTTP Port
+      - "443:4443" # Public HTTPS Port
+      - "8181:8181" # Admin Web Port
       # Add any other Stream port you want to expose
       # - '21:21' # FTP
 

@@ -1,4 +1,1 @@
-FROM jc21/nginx-proxy-manager:latest
-
-RUN sudo chmod -R 755 /etc/letsencrypt/live
-RUN sudo chmod -R 755 /etc/letsencrypt/archive
+FROM jlesage/nginx-proxy-manager
