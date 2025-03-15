@@ -64,55 +64,36 @@ services:
     networks:
       - private_net
       - public_net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.public-gateway.rule=Host('deesnotes.cloud')"
-      - "traefik.port=4300"
   app:
-    networks:
-      - public_net
-    # build:
-    #   context: ./nginx
-    #   dockerfile: dockerfile
-    # restart: unless-stopped
-    # ports:
-    #   # These ports are in format <host-port>:<container-port>
-    #   - "80:80" # Public HTTP Port
-    #   - "443:443" # Public HTTPS Port
-    #   - "81:81" # Admin Web Port
-    #   # Add any other Stream port you want to expose
-    #   # - '21:21' # FTP
-
-    # # Uncomment the next line if you uncomment anything in the section
-    # # environment:
-    # # Uncomment this if you want to change the location of
-    # # the SQLite DB file within the container
-    # # DB_SQLITE_FILE: "/data/database.sqlite"
-
-    # # Uncomment this if IPv6 is not enabled on your host
-    # # DISABLE_IPV6: 'true'
-
-    # volumes:
-    #   - ./nginx/data:/etc/nginx/data
-    #   - ./nginx/letsencrypt:/etc/nginx/letsencrypt
-
+    container_name: app
+    # image: jc21/nginx-proxy-manager:latest
     build:
-      context: ./traefik
+      context: ./nginx
       dockerfile: dockerfile
-    command:
-      - --api # Enables the web UI and tells Traefik to listen to docker
-      # - --providers.docker
-      - --docker.exposedByDefault=false
+    restart: unless-stopped
+    user: root
     ports:
-      # The HTTP port
+      # These ports are in format <host-port>:<container-port>
       - "80:80" # Public HTTP Port
       - "443:443" # Public HTTPS Port
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
+      - "81:81" # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+
+    # Uncomment the next line if you uncomment anything in the section
+    # environment:
+    # Uncomment this if you want to change the location of
+    # the SQLite DB file within the container
+    # DB_SQLITE_FILE: "/data/database.sqlite"
+
+    # Uncomment this if IPv6 is not enabled on your host
+    # DISABLE_IPV6: 'true'
+
     volumes:
-      # So that Traefik can listen to the Docker events
-      - ./traefik.yml:/etc/traefik/traefik.yml
-      - ./dynamic.yml:/etc/traefik/dynamic.yml
+      - ./nginx/data:/data
+      - ./nginx/letsencrypt:/etc/letsencrypt:rw
+    security_opt:
+      - label:disable
 
   cloudflare-ddns:
     build:
