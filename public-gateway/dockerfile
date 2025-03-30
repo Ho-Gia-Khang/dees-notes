@@ -7,6 +7,9 @@ COPY . .
 RUN npm install 
 RUN npm run build
 
-ENV port=4300
-EXPOSE 4300
-CMD ["npm", "run", "start"]
+RUN npm install -g serve
+
+ENV port=5173
+EXPOSE 5173
+
+CMD ["npm", "run", "serve"]

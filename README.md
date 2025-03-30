@@ -89,10 +89,10 @@ chmod +x /trustable-path/[filename].sh
 Run all the docker containers in your docker manager app or
 
 ```
-docker compose up
+docker compose up -d
 ```
 
-To turn it of, stop all the containers or
+To turn it off, stop all the containers or
 
 ```
 docker compose down
