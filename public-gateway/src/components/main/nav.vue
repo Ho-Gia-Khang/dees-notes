@@ -1,7 +1,7 @@
 <template>
   <nav class="nav">
     <RouterLink v-if="HOME_NAV_ITEM.to" :to="HOME_NAV_ITEM.to" class="home-nav-item">
-      <Icon :icon="HOME_NAV_ITEM.icon" :size="32" />
+      <Icon :icon="HOME_NAV_ITEM.icon" :size="28" />
       <span v-if="isLevel1Active">{{ HOME_NAV_ITEM.label }}</span>
     </RouterLink>
 
@@ -119,7 +119,6 @@ $text-color: #606266;
   grid-template-rows: min-content 1fr;
   grid-template-columns: min-content min-content;
   max-height: 100%;
-  z-index: 100;
 
   a {
     text-decoration: none;
@@ -134,7 +133,7 @@ $text-color: #606266;
     align-items: center;
     padding: 12px;
     gap: 8px;
-    font-size: 28px;
+    font-size: 26px;
     grid-column: span 2;
   }
 
@@ -144,7 +143,7 @@ $text-color: #606266;
     height: 95%;
     gap: 8px;
     padding: 12px;
-    width: 160px;
+    width: 150px;
     position: relative;
     transition: all 0.3s ease-in-out;
 
