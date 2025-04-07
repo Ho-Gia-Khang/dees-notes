@@ -54,13 +54,27 @@ services:
   #######################
   ### public services ###
   #######################
+
+  # The frontend gateway
   public-gateway:
     container_name: public-gateway
     build:
       context: ./public-gateway
       dockerfile: dockerfile
     ports:
-      - "4300:4300"
+      - "4300:5173"
+    networks:
+      - public_net
+
+  # The backend gateway to access the private services
+  # This is the gateway that the public-gateway will use to access the private services
+  default-gateway:
+    container_name: default-gateway
+    build:
+      context: ./default-gateway
+      dockerfile: dockerfile
+    ports:
+      - "3000:3000"
     networks:
       - private_net
       - public_net

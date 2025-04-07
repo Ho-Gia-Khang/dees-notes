@@ -1,15 +1,25 @@
-FROM node:22-alpine
+# Stage 1: build the application
+FROM node:23-alpine
 
 WORKDIR /default-gateway
 
-COPY ./default-gateway .
+COPY default-gateway/package*.json ./
+
+ENV port=3001
 
 RUN npm install 
+
+COPY /default-gateway/src ./src
+COPY /default-gateway/node_modules ./node_modules
+COPY /default-gateway/tsconfig.json tsconfig.json
+
 RUN npm run build
 
-WORKDIR /default-gateway/src
+# Stage 2: run the application as user node
+WORKDIR /default-gateway/dist
 
-ENV port=3000
-EXPOSE 3000
+USER node
 
-CMD ["npm", "run", "start"]
+EXPOSE ${port}
+
+CMD ["node", "index.js"]

@@ -5,7 +5,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 const app: Express = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ?? 3001;
 
 const jellyfinProxyMiddleWare = createProxyMiddleware<Request, Response>({
   target: "http://jellyfin:8096",

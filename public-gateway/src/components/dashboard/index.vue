@@ -23,11 +23,14 @@
 <script setup lang="ts">
 import { ElCollapse, ElCollapseItem } from "element-plus";
 import MainLayout from "../layouts/main-layout.vue";
+import { provideDashboard } from "@/contexts/useDashboard";
 
 enum ECollapseItems {
   Storage = "Storage",
   RecentActivity = "Recent activity",
 }
+
+provideDashboard();
 </script>
 
 <style lang="scss" scoped>

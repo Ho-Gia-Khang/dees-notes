@@ -1,0 +1,26 @@
+FROM node:23-alpine
+
+WORKDIR /src
+
+COPY package*.json ./
+
+ENV PORT=3000 \ 
+    MEDIA_SERVICE_URL=http://media:3001 \
+    DOCUMENT_SERVICE_URL=http://document:3002
+
+RUN npm install 
+
+COPY ./src ./src
+COPY node_modules ./node_modules
+COPY tsconfig.json tsconfig.json
+
+RUN npm run build
+
+WORKDIR /src/dist
+
+# Stage 2: run the application as user node
+USER node
+
+EXPOSE ${PORT}
+
+CMD ["node", "index.js"]
