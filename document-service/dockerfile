@@ -9,7 +9,6 @@ ENV PORT=3002
 RUN npm install 
 
 COPY /default-gateway/src ./src
-COPY /default-gateway/node_modules ./node_modules
 COPY /default-gateway/tsconfig.json tsconfig.json
 
 RUN npm run build

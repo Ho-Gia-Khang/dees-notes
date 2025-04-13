@@ -4,7 +4,11 @@ import { CorsOptions } from "cors";
 dotenv.config();
 
 const corsOptions: CorsOptions = {
-  origin: ["http://localhost:4300", "https://deesnotes.cloud"],
+  origin: [
+    "http://localhost:4300",
+    "http://localhost:3000/media/player",
+    "https://deesnotes.cloud",
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 };
 
@@ -18,9 +22,10 @@ const config: Config = {
   port: Number(process.env.PORT) ?? 3000,
   corsOptions,
   URLs: {
-    MEDIA_SERVICE_URL: process.env.MEDIA_SERVICE_URL ?? "http://localhost:4000",
+    MEDIA_SERVICE_URL: process.env.MEDIA_SERVICE_URL ?? "http://media:3001",
     DOCUMENT_SERVICE_URL:
-      process.env.DOCUMENT_SERVICE_URL ?? "http://localhost:5000",
+      process.env.DOCUMENT_SERVICE_URL ?? "http://document:3002",
+    JELLYFIN_URL: process.env.JELLYFIN_URL ?? "http://localhost:8096",
   },
 };
 

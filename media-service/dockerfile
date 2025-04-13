@@ -5,12 +5,11 @@ WORKDIR /default-gateway
 
 COPY default-gateway/package*.json ./
 
-ENV port=3001
+ENV PORT=3001
 
 RUN npm install 
 
 COPY /default-gateway/src ./src
-COPY /default-gateway/node_modules ./node_modules
 COPY /default-gateway/tsconfig.json tsconfig.json
 
 RUN npm run build
@@ -20,6 +19,6 @@ WORKDIR /default-gateway/dist
 
 USER node
 
-EXPOSE ${port}
+EXPOSE ${PORT}
 
 CMD ["node", "index.js"]

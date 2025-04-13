@@ -4,7 +4,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import useMediaStore from "@/stores/media";
 
-onMounted(() => {});
+import { onBeforeMount } from "vue";
+
+const { getMediaList } = useMediaStore();
+
+onBeforeMount(() => {
+  getMediaList();
+});
 </script>

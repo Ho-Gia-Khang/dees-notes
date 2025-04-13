@@ -18,11 +18,22 @@ const useMediaStore = defineStore("media", () => {
     }
   }
 
+  async function gotoPlayer() {
+    try {
+      await mediaApi.gotoPlayer();
+      // mediaList.value = response.data;
+    } catch (error) {
+      console.error("Error when navigate to media player:", error);
+      throw error;
+    }
+  }
+
   return {
     state: {
       mediaList,
     },
     getMediaList,
+    gotoPlayer,
   };
 });
 
