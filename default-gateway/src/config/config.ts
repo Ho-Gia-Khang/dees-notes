@@ -6,7 +6,7 @@ dotenv.config();
 const corsOptions: CorsOptions = {
   origin: [
     "http://localhost:4300",
-    "http://localhost:3000/media/player",
+    "http://localhost:5173",
     "https://deesnotes.cloud",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],

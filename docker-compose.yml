@@ -39,9 +39,8 @@ services:
         target: /media2
         read_only: true
     restart: unless-stopped
-    # networks:
-    #   - private_net
-    # - public_net
+    networks:
+      - public_net
 
   document:
     build:

@@ -1,4 +1,4 @@
-FROM node:22 AS build
+FROM node:23-slim AS build
 
 WORKDIR /src
 
@@ -10,7 +10,7 @@ COPY . .
 RUN npm install 
 RUN npm run build
 
-FROM node:22-alpine
+FROM node:23-alpine
 
 WORKDIR /src
 

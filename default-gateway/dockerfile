@@ -7,7 +7,7 @@ COPY package*.json ./
 ENV PORT=3000 \ 
     MEDIA_SERVICE_URL=http://media:3001 \
     DOCUMENT_SERVICE_URL=http://document:3002 \ 
-    JELLYFIN_URL=http://localhost:8096 
+    JELLYFIN_URL=http://host.docker.internal:8096 
 
 RUN npm install 
 

@@ -20,7 +20,11 @@ const useMediaStore = defineStore("media", () => {
 
   async function gotoPlayer() {
     try {
-      await mediaApi.gotoPlayer();
+      const rp = await mediaApi.gotoPlayer();
+      if (rp.url) {
+        // window.location.href = rp.url; // Redirect the user to Jellyfin UI
+        window.open(rp.url, "_blank"); // Redirect the user to Jellyfin UI
+      }
       // mediaList.value = response.data;
     } catch (error) {
       console.error("Error when navigate to media player:", error);
