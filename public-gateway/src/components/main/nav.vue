@@ -32,12 +32,7 @@
       :class="{ 'nav-inactive': !isLevel2Active }"
     >
       <div v-for="item in currentSelectNavItem.children" :key="item.label">
-        <RouterLink
-          v-if="item.to"
-          :to="item.to"
-          class="nav-item"
-          :class="{ active: currentRoute === item.to }"
-        >
+        <RouterLink :to="item.to" class="nav-item" :class="{ active: currentRoute === item.to }">
           <Icon :icon="item.icon" />
           <span v-if="isLevel2Active" :class="`level-${item.level}`">{{ item.label }}</span>
         </RouterLink>
@@ -91,7 +86,26 @@ const NAV_ITEMS: INavItem[] = [
       },
     ],
   },
-  { label: "Document", to: "/documents", level: ENavLevel.LEVEL_1, icon: "document" },
+  {
+    label: "Documents",
+    to: "/documents",
+    level: ENavLevel.LEVEL_1,
+    icon: "document",
+    children: [
+      {
+        label: "Library",
+        to: "/documents/library",
+        level: ENavLevel.LEVEL_2,
+        icon: "library",
+      },
+      {
+        label: "Editor",
+        to: "/documents/editor",
+        level: ENavLevel.LEVEL_2,
+        icon: "editor",
+      },
+    ],
+  },
 ];
 
 const isLevel1Active = ref(true);

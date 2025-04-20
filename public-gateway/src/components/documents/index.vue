@@ -8,18 +8,18 @@ import ServiceTemplate from "../shared/service-template.vue";
 
 const serviceItems: INavItem[] = [
   {
-    label: "Player",
-    to: "/media/player",
-    description: "Media player implemented by Jellyfin.",
+    label: "Library",
+    to: "/documents/library",
+    description: "View and edit your documents and notes",
     level: ENavLevel.LEVEL_2,
-    icon: "player",
+    icon: "library",
   },
   {
-    label: "Upload",
-    to: "/media/upload",
-    description: "Upload and manage media files.",
+    label: "Editor",
+    to: "/documents/editor",
+    description: "Create new documents",
     level: ENavLevel.LEVEL_2,
-    icon: "upload",
+    icon: "editor",
   },
 ];
 </script>

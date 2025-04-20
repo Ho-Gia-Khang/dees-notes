@@ -26,6 +26,7 @@ const config: Config = {
     DOCUMENT_SERVICE_URL:
       process.env.DOCUMENT_SERVICE_URL ?? "http://document:3002",
     JELLYFIN_URL: process.env.JELLYFIN_URL ?? "http://localhost:8096",
+    ORIGIN: process.env.ORIGIN ?? "http://localhost:3000",
   },
 };
 

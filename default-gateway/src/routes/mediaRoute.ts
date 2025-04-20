@@ -25,7 +25,7 @@ mediaRouter.get("/", async (_, res: Response) => {
 mediaRouter.get("/player", (_, res: Response) => {
   // some authentication logic here
   res.status(200).send({
-    url: `http://localhost:3000/media/player/jellyfin/`,
+    url: `${config.URLs.ORIGIN}/media/player/jellyfin/`,
   });
 });
 mediaRouter.use("/player/jellyfin", jellyfinProxyMiddleware);

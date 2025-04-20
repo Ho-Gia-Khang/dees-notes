@@ -3,6 +3,7 @@ import type { Icon } from "../shared/common";
 export interface INavItem {
   label: string;
   icon: Icon;
+  description?: string;
   to: string;
   level: ENavLevel;
   children?: INavItem[];

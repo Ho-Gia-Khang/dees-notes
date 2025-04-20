@@ -5,6 +5,8 @@ import MediaView from "@/views/mediaView/index.vue";
 import MediaPlayer from "@/views/mediaView/player.vue";
 import MediaUploader from "@/views/mediaView/uploader.vue";
 import DocumentView from "@/views/documentView/index.vue";
+import DocumentLibrary from "@/views/documentView/library.vue";
+import DocumentEditor from "@/views/documentView/editor.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -40,6 +42,18 @@ const router = createRouter({
       path: "/documents",
       name: "documents",
       component: DocumentView,
+      children: [
+        {
+          path: "library",
+          name: "library",
+          component: DocumentLibrary,
+        },
+        {
+          path: "editor",
+          name: "editor",
+          component: DocumentEditor,
+        },
+      ],
     },
   ],
 });
