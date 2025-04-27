@@ -16,6 +16,8 @@ interface Config {
   port: number;
   corsOptions: CorsOptions;
   URLs: Record<string, string>;
+  privateKey: string;
+  publicKey: string;
 }
 
 const config: Config = {
@@ -28,6 +30,8 @@ const config: Config = {
     JELLYFIN_URL: process.env.JELLYFIN_URL ?? "http://localhost:8096",
     ORIGIN: process.env.ORIGIN ?? "http://localhost:3000",
   },
+  privateKey: process.env.JWT_PRIVATE_KEY as string,
+  publicKey: process.env.JWT_PUBLIC_KEY as string,
 };
 
 export default config;
