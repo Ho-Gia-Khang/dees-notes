@@ -8,8 +8,9 @@ export enum ERoles {
 
 export default interface IUser {
   id: string;
-  userName: string;
+  phoneNumber: string;
   role: ERoles;
+  createdAt: Date;
 }
 
 export interface UserInput {

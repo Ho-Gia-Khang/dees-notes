@@ -5,6 +5,7 @@ import config from "./config/config";
 
 import mediaRouter from "./routes/mediaRoute";
 import documentRouter from "./routes/documentRoute";
+import userRouter from "./routes/userRoute";
 
 const app: Express = express();
 
@@ -17,6 +18,7 @@ app.get("/", (_, res: Response) => {
 
 app.use("/media", mediaRouter);
 app.use("/document", documentRouter);
+app.use("/auth", userRouter);
 
 app.listen(config.port, () => {
   console.log(

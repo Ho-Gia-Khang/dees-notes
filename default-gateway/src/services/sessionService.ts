@@ -2,6 +2,8 @@ import prisma from "./client";
 import { signJwt, verifyJwt } from "../utils/jwt";
 import get from "lodash/get";
 import { findUser } from "./userService";
+import { generateTokens } from "../utils";
+import IUser from "../models/userModel";
 
 export async function createSession({ userId }: { userId: string }) {
   const session = await prisma.session.create({
@@ -38,7 +40,7 @@ export async function updateSession({
   });
 }
 
-export async function reIssueAccessToken({
+export async function reIssueTokens({
   refreshToken,
 }: {
   refreshToken: string;
@@ -65,12 +67,13 @@ export async function reIssueAccessToken({
     return false;
   }
 
-  // if valid, issue a new access token
-  const accessToken = signJwt(
-    { ...user, session: session.id },
-    { expiresIn: "30m" }
-  );
-  return accessToken;
+  // if valid, issue a new session and pair of access and refresh tokens
+  const newSession = await createSession({ userId: user.id });
+  const tokenPairs = generateTokens(user as IUser, newSession.id);
+
+  // delete the old session
+  await deleteSession({ id: session.id });
+  return tokenPairs;
 }
 
 export async function deleteSessions({
@@ -83,4 +86,8 @@ export async function deleteSessions({
   return prisma.session.deleteMany({
     where: { userId: userId, valid: valid },
   });
+}
+
+export async function deleteSession({ id }: { id: string }) {
+  return prisma.session.delete({ where: { id: id } });
 }

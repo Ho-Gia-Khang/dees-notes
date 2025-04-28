@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
-import { validatePassword } from "../services/userService";
+import { EHttpStatusCode } from "../constants";
 import {
   createSession,
   deleteSessions,
   findSessions,
   updateSession,
 } from "../services/sessionService";
-import { signJwt } from "../utils/jwt";
-import { EHttpStatusCode } from "../constants";
+import { validatePassword } from "../services/userService";
+import { generateTokens } from "../utils";
+import IUser from "../models/userModel";
 
 export async function createUserSessionHandler(req: Request, res: Response) {
   // validate user password
@@ -27,23 +28,16 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   //create a session
   const session = await createSession({ userId: user.id });
 
-  //create an access token
-  const accessToken = signJwt(
-    { ...user, session: session.id },
-    { expiresIn: "15m" }
-  );
-
-  //create a refresh token
-  const refreshToken = signJwt(
-    { ...user, session: session.id },
-    { expiresIn: "90d" }
+  const { accessToken, refreshToken } = generateTokens(
+    user as IUser,
+    session.id
   );
 
   res.locals.user = user;
   res.status(EHttpStatusCode.OK).send({ accessToken, refreshToken });
 }
 
-export async function getUserSessionsHandler(req: Request, res: Response) {
+export async function getUserSessionsHandler(_: Request, res: Response) {
   const userId = res.locals.user.id;
 
   const sessions = await findSessions({ userId: userId, valid: true });
@@ -51,7 +45,7 @@ export async function getUserSessionsHandler(req: Request, res: Response) {
   res.status(EHttpStatusCode.OK).send(sessions);
 }
 
-export async function deleteSessionHandler(req: Request, res: Response) {
+export async function deleteSessionHandler(_: Request, res: Response) {
   const userId = res.locals.user.id;
 
   const sessions = await updateSession({ query: userId, update: false });
