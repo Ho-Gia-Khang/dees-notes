@@ -1,13 +1,17 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import {
   createUserSessionHandler,
   deleteSessionHandler,
+  renewSessionHandler,
 } from "../controllers/sessionController";
 
 import requireUser from "../middlewares/requireUser";
 import validate from "../middlewares/validateRequests";
 import { createUserSchema } from "../models/userModel";
-import { createSessionSchema } from "../models/sessionModel";
+import {
+  createSessionSchema,
+  renewSessionSchema,
+} from "../models/sessionModel";
 import {
   createUserHandler,
   deleteUserHandler,
@@ -21,6 +25,11 @@ userRouter.post(
   "/login",
   validate(createSessionSchema),
   createUserSessionHandler
+);
+userRouter.post(
+  "/loginSilent",
+  validate(renewSessionSchema),
+  renewSessionHandler
 );
 
 // dynamic routes

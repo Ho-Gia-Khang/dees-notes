@@ -1,9 +1,9 @@
-import prisma from "./client";
-import { signJwt, verifyJwt } from "../utils/jwt";
 import get from "lodash/get";
-import { findUser } from "./userService";
-import { generateTokens } from "../utils";
 import IUser from "../models/userModel";
+import { generateTokens } from "../utils";
+import { verifyJwt } from "../utils/jwt";
+import prisma from "./client";
+import { findUser } from "./userService";
 
 export async function createSession({ userId }: { userId: string }) {
   const session = await prisma.session.create({

@@ -34,8 +34,6 @@ export const deserializeUser = async (
       const { decoded } = verifyJwt(tokensPairs.accessToken as string);
       res.locals.user = decoded;
     }
-
-    return next();
   }
 
   return next();

@@ -9,17 +9,17 @@ ENV PORT=3000 \
     DOCUMENT_SERVICE_URL=http://document:3002 \ 
     JELLYFIN_URL=http://host.docker.internal:8096 \
     ORIGIN=http://deesnotes.cloud \
-    DATABASE_URL=postgres://admin:admin@localhost:5432/default_db
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/postgres?schema=public 
 
 RUN npm install 
 
 COPY ./src ./src
 COPY ./prisma ./prisma
-COPY node_modules ./node_modules
 COPY tsconfig.json tsconfig.json
 
 RUN npm run build
-RUN npx prisma generate 
+RUN npx prisma generate deploy
+RUN npx prisma generate
 
 WORKDIR /src/dist
 

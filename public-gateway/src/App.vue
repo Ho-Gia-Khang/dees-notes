@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout">
+  <div v-if="isAuthenticated" class="main-layout">
     <Nav />
     <div>
       <Header />
@@ -8,12 +8,19 @@
       </main>
     </div>
   </div>
+
+  <RouterView v-else />
 </template>
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import Nav from "./components/main/nav.vue";
 import Header from "./components/main/header.vue";
+import useAuthStore from "./stores/auth";
+
+const {
+  state: { isAuthenticated },
+} = useAuthStore();
 </script>
 
 <style scoped lang="scss">

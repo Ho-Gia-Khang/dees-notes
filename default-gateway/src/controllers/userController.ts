@@ -3,6 +3,7 @@ import omit from "lodash/omit";
 import { CreateUserInput, ERoles, UserInput } from "../models/userModel";
 import { createUser, deleteUser, findUser } from "../services/userService";
 import { EHttpStatusCode } from "../constants";
+import config from "../config/config";
 
 export const createUserHandler = async (
   req: Request<{}, {}, CreateUserInput["body"]>,
@@ -13,7 +14,31 @@ export const createUserHandler = async (
       ...omit(req.body, "passwordConfirmation"),
       role: (req.body.role as ERoles) ?? ERoles.user,
     };
-    const newUser = await createUser(createUserPayload);
+    if (createUserPayload.role === ERoles.admin) {
+      const masterPassword = config.masterPassword;
+      console.log(" masterPassword:", masterPassword);
+      if (!masterPassword) {
+        res.status(500).send("Master password is not set");
+        return;
+      }
+
+      if (
+        !req.body.masterPassword ||
+        req.body.masterPassword !== masterPassword
+      ) {
+        res
+          .status(EHttpStatusCode.UNAUTHORIZED)
+          .send("Invalid master password");
+
+        return;
+      }
+    }
+
+    const newUser = await createUser({
+      phoneNumber: createUserPayload.phoneNumber,
+      password: createUserPayload.password,
+      role: createUserPayload.role,
+    });
 
     res.locals.user = newUser;
 

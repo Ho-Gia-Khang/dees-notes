@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import IndexView from "../views/IndexView.vue";
-import LoginView from "@/views/LoginView.vue";
+import LoginView from "@/views/auth/LoginView.vue";
 import MediaView from "@/views/mediaView/index.vue";
 import MediaPlayer from "@/views/mediaView/player.vue";
 import MediaUploader from "@/views/mediaView/uploader.vue";
@@ -17,7 +17,7 @@ const router = createRouter({
       component: IndexView,
     },
     {
-      path: "/login",
+      path: "/auth/login",
       name: "login",
       component: LoginView,
     },

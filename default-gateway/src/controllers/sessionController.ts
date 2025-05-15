@@ -4,11 +4,13 @@ import {
   createSession,
   deleteSessions,
   findSessions,
+  reIssueTokens,
   updateSession,
 } from "../services/sessionService";
 import { validatePassword } from "../services/userService";
 import { generateTokens } from "../utils";
 import IUser from "../models/userModel";
+import { verifyJwt } from "../utils/jwt";
 
 export async function createUserSessionHandler(req: Request, res: Response) {
   // validate user password
@@ -35,6 +37,29 @@ export async function createUserSessionHandler(req: Request, res: Response) {
 
   res.locals.user = user;
   res.status(EHttpStatusCode.OK).send({ accessToken, refreshToken });
+}
+
+export async function renewSessionHandler(req: Request, res: Response) {
+  const { refreshToken } = req.body;
+
+  const { valid } = verifyJwt(refreshToken);
+
+  if (!valid) {
+    res.status(EHttpStatusCode.UNAUTHORIZED).send("Invalid refresh token");
+    return;
+  }
+
+  const tokensPairs = await reIssueTokens({ refreshToken });
+  if (tokensPairs) {
+    res.status(EHttpStatusCode.OK).send({
+      accessToken: tokensPairs.accessToken,
+      refreshToken: tokensPairs.refreshToken,
+    });
+  }
+
+  res
+    .status(EHttpStatusCode.INTERNAL_SERVER_ERROR)
+    .send("Could not reissue tokens");
 }
 
 export async function getUserSessionsHandler(_: Request, res: Response) {
