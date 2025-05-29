@@ -20,6 +20,11 @@ export interface UserInput {
   comparePassword: (candidatePassword: string) => Promise<Boolean>;
 }
 
+export interface UpdateUserInput {
+  phoneNumber?: string;
+  password?: string;
+}
+
 export const createUserSchema = object({
   body: object({
     phoneNumber: string({
@@ -29,7 +34,6 @@ export const createUserSchema = object({
       required_error: "Password is required",
     }).min(6, "Password too short, please enter at least 6 characters"),
     role: string().optional(),
-    masterPassword: string().optional(),
     passwordConfirmation: string({
       required_error: "Password confirmation is required",
     }),

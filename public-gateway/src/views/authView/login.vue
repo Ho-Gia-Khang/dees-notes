@@ -56,7 +56,7 @@ const { login } = useAuthStore();
 async function handleLogin() {
   try {
     await login(loginModel.phoneNumber, loginModel.password);
-    window.open("/home", "_self");
+    window.open("/", "_self");
   } catch (error) {
     console.error("Login failed:", error);
   }

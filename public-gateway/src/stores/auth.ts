@@ -1,30 +1,31 @@
 import useHttpClient from "@/api/httpClient";
 import { defineStore } from "pinia";
-import { nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { jwtDecode } from "jwt-decode";
 import { delayMs, setLocalStorage } from "@/utils";
-import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { ERoles, LOCAL_STORAGE_KEYS, LOGIN_ROUTE } from "@/constants";
+import { useRouter } from "vue-router";
+import useUserApi from "@/api/userApi";
 
 const RENEW_TOKEN_INTERVAL = 600; // in seconds
 const LOGIN_SILENT_INTERVAL = (RENEW_TOKEN_INTERVAL / 2) * 1000; // in milliseconds
-const LOGIN_ROUTE = "/auth/login";
-const LOGOUT_ROUTE = "/auth/logout";
 
 const useAuthStore = defineStore("authStore", () => {
   const httpClient = useHttpClient();
+  const router = useRouter();
+  const userApi = useUserApi();
 
   const role = ref<string | null>(null);
   const isAuthenticated = ref(false);
   const session = ref<{ [key: string]: any }>({});
 
+  const isAdmin = computed(() => role.value === ERoles.ADMIN);
+
   let intervalId: number = 0;
 
   async function login(phoneNumber: string, password: string) {
     try {
-      const response = await httpClient.httpPost("/auth/login", {
-        phoneNumber,
-        password,
-      });
+      const response = await userApi.login(phoneNumber, password);
       if (response) {
         session.value = response;
         setLocalStorage(LOCAL_STORAGE_KEYS.SESSION_INFO, response);
@@ -42,7 +43,7 @@ const useAuthStore = defineStore("authStore", () => {
 
     // if not logged in, redirect to login page
     if (!storedSession) {
-      window.open(LOGIN_ROUTE);
+      router.replace(LOGIN_ROUTE);
       return;
     }
 
@@ -50,16 +51,14 @@ const useAuthStore = defineStore("authStore", () => {
     if (!refreshToken) {
       console.error("No refresh token found in session.");
       clearSession();
-      window.open(LOGIN_ROUTE);
+      router.replace(LOGIN_ROUTE);
       return;
     }
 
     const decodedRefreshToken = jwtDecode(refreshToken);
     if (!decodedRefreshToken.exp || decodedRefreshToken.exp * 1000 < Date.now()) {
       try {
-        const response = await httpClient.httpPost("/auth/loginSilent", {
-          refreshToken,
-        });
+        const response = await userApi.loginSilent(refreshToken);
         session.value = response;
         await nextTick();
 
@@ -68,7 +67,7 @@ const useAuthStore = defineStore("authStore", () => {
       } catch (error) {
         console.error("Token refresh failed:", error);
         clearSession();
-        window.open(LOGIN_ROUTE);
+        router.replace(LOGIN_ROUTE);
       }
     } else {
       session.value = JSON.parse(storedSession);
@@ -100,9 +99,7 @@ const useAuthStore = defineStore("authStore", () => {
         return;
       }
 
-      const response = await httpClient.httpPost("/auth/loginSilent", {
-        refreshToken: currentRefreshToken,
-      });
+      const response = await userApi.loginSilent(currentRefreshToken);
 
       session.value = response;
 
@@ -118,11 +115,23 @@ const useAuthStore = defineStore("authStore", () => {
 
   async function logout() {
     try {
-      await httpClient.httpDelete("/auth/logout");
-      clearSession();
-      window.open(LOGIN_ROUTE);
+      await userApi.logout();
     } catch (error) {
       console.error("Logout failed:", error);
+      throw error;
+    } finally {
+      clearSession();
+      router.replace(LOGIN_ROUTE);
+    }
+  }
+
+  async function deleteAccount() {
+    try {
+      await userApi.deleteAccount();
+      clearSession();
+      router.replace(LOGIN_ROUTE);
+    } catch (error) {
+      console.error("Account deletion failed:", error);
       throw error;
     }
   }
@@ -152,13 +161,15 @@ const useAuthStore = defineStore("authStore", () => {
   });
 
   return {
-    login,
-    logout,
-    clearSession,
     state: {
       isAuthenticated,
       role,
+      isAdmin,
     },
+    login,
+    logout,
+    clearSession,
+    deleteAccount,
   };
 });
 

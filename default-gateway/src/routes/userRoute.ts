@@ -14,12 +14,18 @@ import {
 } from "../models/sessionModel";
 import {
   createUserHandler,
-  deleteUserHandler,
+  deleteCurrentUserHandler,
+  deleteUser,
+  getCurrentUser,
+  getUsersList,
+  updateUserHandler,
 } from "../controllers/userController";
 
 const userRouter = express.Router();
 
 // static routes
+userRouter.get("/current", requireUser, getCurrentUser);
+userRouter.get("/usersList", requireUser, getUsersList);
 userRouter.post("/create", validate(createUserSchema), createUserHandler);
 userRouter.post(
   "/login",
@@ -31,9 +37,11 @@ userRouter.post(
   validate(renewSessionSchema),
   renewSessionHandler
 );
+userRouter.put("/update", requireUser, updateUserHandler);
+userRouter.delete("/logout", requireUser, deleteSessionHandler);
+userRouter.delete("/deleteCurrent", requireUser, deleteCurrentUserHandler);
 
 // dynamic routes
-userRouter.delete("/logout", requireUser, deleteSessionHandler);
-userRouter.delete("/delete", requireUser, deleteUserHandler);
+userRouter.delete("/delete/:phoneNumber", requireUser, deleteUser);
 
 export default userRouter;

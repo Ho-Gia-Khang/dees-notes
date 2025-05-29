@@ -11,11 +11,11 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
     return await httpClient.httpGet(BASE_MEDIA_URL);
   }
 
-  async function gotoPlayer(): Promise<any> {
+  async function goToPlayer(): Promise<any> {
     return await httpClient.httpGet(BASE_MEDIA_URL + "/player");
   }
 
-  return { getMediaList, gotoPlayer };
+  return { getMediaList, goToPlayer };
 });
 
 export default useMediaServiceApi;

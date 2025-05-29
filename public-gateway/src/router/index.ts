@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
 import IndexView from "../views/IndexView.vue";
-import LoginView from "@/views/auth/LoginView.vue";
+import LoginView from "@/views/authView/login.vue";
 import MediaView from "@/views/mediaView/index.vue";
 import MediaPlayer from "@/views/mediaView/player.vue";
 import MediaUploader from "@/views/mediaView/uploader.vue";
 import DocumentView from "@/views/documentView/index.vue";
 import DocumentLibrary from "@/views/documentView/library.vue";
 import DocumentEditor from "@/views/documentView/editor.vue";
+import AdminView from "@/views/authView/admin/index.vue";
+import ProfileView from "@/views/authView/profile.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -20,6 +22,16 @@ const router = createRouter({
       path: "/auth/login",
       name: "login",
       component: LoginView,
+    },
+    {
+      path: "/auth/admin",
+      name: "admin",
+      component: AdminView,
+    },
+    {
+      path: "/auth/profile",
+      name: "profile",
+      component: ProfileView,
     },
     {
       path: "/media",

@@ -14,7 +14,7 @@
 
    1.1. Go to your DNS record and find 'API Token' section.
 
-   1.2. Create a token using 'Edit DNS' template (not the public API Ken. Also, existing tokens cannot be used, it must be a new token)
+   1.2. Create a token using 'Edit DNS' template (not the public API token. Also, existing tokens cannot be used, it must be a new token)
 
    1.3. Grand the edit permission to that token if you use other templates. Include all DNS zones as well.
 
@@ -84,7 +84,13 @@ chmod +x /trustable-path/[filename].sh
 ./trustable-path/[filename].sh
 ```
 
-## 5. For the next time visit
+## 5. Setup local environment variables
+
+1. Check the `.env.example` file to see the environment variables required.
+
+2. Create an `.env` file at the same directory as the `docket-compose.yml` file and follow the instruction in the `.env.example` file.
+
+## 6. For the next time visit
 
 Run all the docker containers in your docker manager app or
 
@@ -98,4 +104,17 @@ To turn it off, stop all the containers or
 docker compose down
 ```
 
-# Configuration
+## 7. Accounts
+
+The system will require a phone number and password for authentication.
+
+It will have one admin accounts. Admin can create member accounts and only admin can create accounts.
+The default admin account, which can be changed later on, will be:
+
+```
+0123456789
+
+changeMe
+```
+
+The system will have only one admin, but can have as many users as desired.

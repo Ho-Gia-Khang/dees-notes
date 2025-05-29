@@ -18,7 +18,6 @@ interface Config {
   URLs: Record<string, string>;
   privateKey: string;
   publicKey: string;
-  masterPassword: string;
 }
 
 const config: Config = {
@@ -33,7 +32,6 @@ const config: Config = {
   },
   privateKey: process.env.JWT_PRIVATE_KEY as string,
   publicKey: process.env.JWT_PUBLIC_KEY as string,
-  masterPassword: process.env.MASTER_PASSWORD as string,
 };
 
 export default config;

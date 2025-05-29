@@ -6,3 +6,5 @@ export enum ERoles {
   ADMIN = "admin",
   USER = "user",
 }
+
+export const LOGIN_ROUTE = "/auth/login";

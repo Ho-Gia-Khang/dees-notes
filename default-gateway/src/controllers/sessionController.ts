@@ -36,7 +36,9 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   );
 
   res.locals.user = user;
-  res.status(EHttpStatusCode.OK).send({ accessToken, refreshToken });
+  res
+    .status(EHttpStatusCode.OK)
+    .send({ accessToken, refreshToken, sessionId: session.id });
 }
 
 export async function renewSessionHandler(req: Request, res: Response) {
@@ -50,10 +52,26 @@ export async function renewSessionHandler(req: Request, res: Response) {
   }
 
   const tokensPairs = await reIssueTokens({ refreshToken });
+
+  const userId = res.locals.user.id;
+
+  if (!userId) {
+    res.status(EHttpStatusCode.INTERNAL_SERVER_ERROR).send("Cannot find user");
+    return;
+  }
+
+  const sessions = await updateSession({ query: userId, update: false });
+  if (sessions) {
+    await deleteSessions({ userId: userId, valid: false });
+  }
+
+  const newSession = await createSession({ userId: userId });
+
   if (tokensPairs) {
     res.status(EHttpStatusCode.OK).send({
       accessToken: tokensPairs.accessToken,
       refreshToken: tokensPairs.refreshToken,
+      sessionId: newSession.id,
     });
   }
 

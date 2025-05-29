@@ -10,7 +10,6 @@ const useMediaStore = defineStore("media", () => {
   async function getMediaList() {
     try {
       const response = await mediaApi.getMediaList();
-      console.log(" response:", response);
       // mediaList.value = response.data;
     } catch (error) {
       console.error("Error fetching media list:", error);
@@ -18,9 +17,9 @@ const useMediaStore = defineStore("media", () => {
     }
   }
 
-  async function gotoPlayer() {
+  async function goToPlayer() {
     try {
-      const rp = await mediaApi.gotoPlayer();
+      const rp = await mediaApi.goToPlayer();
       if (rp.url) {
         // window.location.href = rp.url; // Redirect the user to Jellyfin UI
         window.open(rp.url, "_blank"); // Redirect the user to Jellyfin UI
@@ -37,7 +36,7 @@ const useMediaStore = defineStore("media", () => {
       mediaList,
     },
     getMediaList,
-    gotoPlayer,
+    goToPlayer,
   };
 });
 

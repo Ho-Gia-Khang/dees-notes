@@ -1,13 +1,41 @@
 <template>
   <header class="main-header">
     <ElButton :icon="Setting" round class="header-btn" />
-    <ElButton :icon="User" round class="header-btn" />
+    <ElPopover trigger="click">
+      <template #reference>
+        <ElButton :icon="User" round class="header-btn" />
+      </template>
+
+      <ElMenu style="border-right: none">
+        <ElMenuItemGroup v-if="state.isAdmin" title="Admin">
+          <ElMenuItem @click="onManageAccounts">Manage accounts</ElMenuItem>
+        </ElMenuItemGroup>
+        <ElMenuItemGroup title="User">
+          <ElMenuItem index="1" @click="onProfile">Profile</ElMenuItem>
+          <ElMenuItem index="2" @click="logout">Logout</ElMenuItem>
+        </ElMenuItemGroup>
+      </ElMenu>
+    </ElPopover>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ElButton } from "element-plus";
+import { ElButton, ElMenu, ElMenuItem, ElMenuItemGroup, ElPopover } from "element-plus";
 import { User, Setting } from "@element-plus/icons-vue";
+import useAuthStore from "@/stores/auth";
+import { useRouter } from "vue-router";
+
+const { state, logout } = useAuthStore();
+
+const router = useRouter();
+
+function onManageAccounts() {
+  router.push("/auth/admin");
+}
+
+function onProfile() {
+  router.push("/auth/profile");
+}
 </script>
 
 <style lang="scss" scoped>

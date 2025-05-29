@@ -4,9 +4,9 @@
 import useMediaStore from "@/stores/media";
 import { onBeforeMount } from "vue";
 
-const { gotoPlayer } = useMediaStore();
+const { goToPlayer } = useMediaStore();
 
 onBeforeMount(() => {
-  gotoPlayer();
+  goToPlayer();
 });
 </script>
