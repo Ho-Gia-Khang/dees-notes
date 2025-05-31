@@ -17,9 +17,10 @@ COPY ./src ./src
 COPY ./prisma ./prisma
 COPY tsconfig.json tsconfig.json
 
-RUN npm run build
 RUN npx prisma generate deploy
 RUN npx prisma generate
+
+RUN npm run build
 
 WORKDIR /src/dist
 

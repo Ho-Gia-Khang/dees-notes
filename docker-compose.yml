@@ -84,7 +84,6 @@ services:
     environment:
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
-      - MASTER_PASSWORD=${MASTER_PASSWORD}
     ports:
       - "3000:3000"
     networks:
