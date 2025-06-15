@@ -3,7 +3,7 @@
     <div class="dashboard">
       <h2>Deesnotes server</h2>
 
-      <ElCollapse accordion>
+      <ElCollapse>
         <ElCollapseItem :name="ECollapseItems.RecentActivity">
           <template #title>
             <h3 class="collapse-item-title">{{ ECollapseItems.RecentActivity }}</h3>

@@ -24,7 +24,6 @@ mediaRouter.get("/", requireUser, async (_, res: Response) => {
 });
 
 mediaRouter.get("/player", requireUser, (_, res: Response) => {
-  // some authentication logic here
   res.status(200).send({
     url: `${config.URLs.ORIGIN}/media/player/jellyfin/`,
   });

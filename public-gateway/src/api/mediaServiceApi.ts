@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import useHttpClient from "./httpClient";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const useMediaServiceApi = defineStore("mediaServiceApi", () => {
   const BASE_MEDIA_URL = BASE_URL + "/media";

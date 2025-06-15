@@ -3,7 +3,7 @@ import useHttpClient from "./httpClient";
 import type { IUser } from "@/types/auth/User";
 import type { ApiListResponse } from "@/types/shared/common";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const useUserApi = defineStore("userApi", () => {
   const BASE_USER_URL = BASE_URL + "/auth";
@@ -36,10 +36,15 @@ const useUserApi = defineStore("userApi", () => {
     deleteMemberAccount: async (phoneNumber: string): Promise<any> => {
       return await httpClient.httpDelete(`${BASE_USER_URL}/delete/${phoneNumber}`);
     },
-    create: async (phoneNumber: string, password: string): Promise<any> => {
+    create: async (
+      phoneNumber: string,
+      password: string,
+      confirmPassword: string,
+    ): Promise<any> => {
       return await httpClient.httpPost(`${BASE_USER_URL}/create`, {
         phoneNumber,
         password,
+        passwordConfirmation: confirmPassword,
       });
     },
     update: async (phoneNumber?: string, password?: string): Promise<void> => {

@@ -44,7 +44,7 @@ const useHttpClient = defineStore("httpClient", () => {
     });
 
     if (!response.ok) {
-      if (response.status === EHttpStatusCode.FORBIDDEN) {
+      if (response.status === EHttpStatusCode.UNAUTHORIZED) {
         auth.logout();
       }
       throw await response.json();
@@ -66,11 +66,47 @@ const useHttpClient = defineStore("httpClient", () => {
     return await httpRequest(url, "DELETE");
   }
 
+  function fileUploadRequest(url: string, formData: FormData) {
+    const headers = createHeaders();
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const caller = async () => {
+      return new Promise<any>((resolve, reject) => {
+        fetch(url, {
+          method: "post",
+          headers,
+          body: formData,
+          signal,
+        }).then((response) => {
+          if (!response.ok) {
+            if (response.status === EHttpStatusCode.UNAUTHORIZED) {
+              auth.logout();
+            }
+            reject(new Error(`HTTP error! status: ${response.status}`));
+          }
+
+          response.json().then((data) => resolve(data));
+        });
+      });
+    };
+
+    const cancel = async () => {
+      controller.abort();
+    };
+    return {
+      caller,
+      cancel,
+    };
+  }
+
   return {
     httpGet,
     httpPost,
     httpPut,
     httpDelete,
+    fileUploadRequest,
     setToken,
   };
 });
