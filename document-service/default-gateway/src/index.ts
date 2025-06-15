@@ -1,15 +1,14 @@
-import express from "express";
 import dotenv from "dotenv";
-import type { Express, Request, Response } from "express";
+import type { Express } from "express";
+import express from "express";
+import documentRouter from "./routes";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT ?? 3002;
 
-app.get("/", (_, res: Response) => {
-  res.status(200).send({ message: "Hello from Document service" });
-});
+app.use(documentRouter);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

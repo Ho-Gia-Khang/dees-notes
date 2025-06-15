@@ -157,7 +157,11 @@ async function handleCreateAccount() {
     return;
   }
 
-  await createUser(createAccountModel.phoneNumber, createAccountModel.password);
+  await createUser(
+    createAccountModel.phoneNumber,
+    createAccountModel.password,
+    createAccountModel.confirmPassword,
+  );
   emits("cancel");
 }
 </script>
