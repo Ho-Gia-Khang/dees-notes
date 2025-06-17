@@ -19,6 +19,7 @@
     "express-fileupload": "^1.5.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
     "@types/express-fileupload": "^1.5.1",
     "@types/node": "^22.13.8",
