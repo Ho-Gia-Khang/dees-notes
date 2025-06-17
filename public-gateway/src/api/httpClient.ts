@@ -65,6 +65,29 @@ const useHttpClient = defineStore("httpClient", () => {
   async function httpDelete(url: string) {
     return await httpRequest(url, "DELETE");
   }
+  async function httpDownload(url: string, fileName?: string) {
+    const headers = createHeaders();
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      if (response.status === EHttpStatusCode.UNAUTHORIZED) {
+        auth.logout();
+      }
+      throw await response.json();
+    }
+
+    const blob = await response.blob();
+    const urlBlob = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = urlBlob;
+    a.download = fileName ?? "downloaded_file"; // You can set a default file name here
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   function fileUploadRequest(url: string, formData: FormData) {
     const headers = createHeaders();
@@ -84,7 +107,10 @@ const useHttpClient = defineStore("httpClient", () => {
             if (response.status === EHttpStatusCode.UNAUTHORIZED) {
               auth.logout();
             }
-            reject(new Error(`HTTP error! status: ${response.status}`));
+            response.json().then((data) => {
+              reject(data);
+            });
+            return;
           }
 
           response.json().then((data) => resolve(data));
@@ -106,6 +132,7 @@ const useHttpClient = defineStore("httpClient", () => {
     httpPost,
     httpPut,
     httpDelete,
+    httpDownload,
     fileUploadRequest,
     setToken,
   };

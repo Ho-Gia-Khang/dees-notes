@@ -13,6 +13,7 @@ export const checkUsersStatus = async (
     const defaultUser: Omit<UserInput, "comparePassword"> = {
       phoneNumber: "0123456789",
       password: "changeMe",
+      userName: "Admin",
       role: ERoles.admin,
     };
     await createUser(defaultUser);

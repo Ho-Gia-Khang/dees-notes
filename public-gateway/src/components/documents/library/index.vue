@@ -8,47 +8,44 @@
     <FileUploader
       :allowed-file-types="ALLOWED_FILE_TYPES"
       :batch-size="BATCH_SIZE"
-      :loaded-files="state.documentsList"
-      :loading="state.isWorking"
+      :loaded-files="parsedDocumentsList"
+      :loading="isUploading || state.isWorking"
       v-model="fileIntermediates"
       @upload="startUpload"
+      @delete="onDeleteFile"
+      @download="onDownloadFile"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import useDocumentStore from "@/stores/document";
 import FileUploader from "@/components/shared/file-uploader.vue";
+import useDocumentStore from "@/stores/document";
 
-import { ALLOWED_FILE_TYPES } from "../constants";
+import { provideUploadController } from "@/api/uploadController";
 import {
   EUploadStatus,
   type IFileIntermediate,
   type IUploadController,
 } from "@/types/shared/fileUpload";
 import { computed, nextTick, ref } from "vue";
-import useUploadController from "@/api/uploadController";
+import { ALLOWED_FILE_TYPES } from "../constants";
+import type { IFile } from "@/types/document/file";
 
 const BATCH_SIZE = 6;
 
-const { state } = useDocumentStore();
+const { state, deleteFile, downloadFile } = useDocumentStore();
 const fileIntermediates = ref<IFileIntermediate[]>([]);
 
-const uploadResource = useUploadController();
+const uploadResource = provideUploadController();
 
 const isUploading = computed(() =>
   fileIntermediates.value.some((file) => file.status === EUploadStatus.Uploading),
 );
 
 async function startUpload() {
-  state.isWorking = true;
-
   function isUploadable(file: IFileIntermediate): boolean {
-    return (
-      file.status === EUploadStatus.Idle ||
-      file.status === EUploadStatus.Canceled ||
-      file.status === EUploadStatus.Error
-    );
+    return file.status === EUploadStatus.Idle || file.status === EUploadStatus.Pending;
   }
 
   const queue = fileIntermediates.value
@@ -84,6 +81,8 @@ async function startUpload() {
 }
 
 async function handleFileUpload(file: IFileIntermediate) {
+  if (!file.file) return;
+
   file.status = EUploadStatus.Uploading;
 
   const uploadController: IUploadController = {
@@ -91,9 +90,9 @@ async function handleFileUpload(file: IFileIntermediate) {
   };
 
   return new Promise<void>((resolve, reject) => {
-    uploadResource
-      .upload("documents", file.file, uploadController)
-      .then((response) => {
+    uploadResource.value
+      .upload("document", file.file!, uploadController)
+      .then((response: IFile) => {
         file.status = EUploadStatus.Done;
 
         fileIntermediates.value = fileIntermediates.value.filter((f) => f.id !== file.id);
@@ -131,6 +130,28 @@ async function handleFileUpload(file: IFileIntermediate) {
       retry,
     };
   });
+}
+
+const parsedDocumentsList = computed<IFileIntermediate[]>(() =>
+  (state.documentsList ?? []).map<IFileIntermediate>((doc) => ({
+    id: doc.id,
+    name: doc.name,
+    type: doc.type,
+    size: doc.size,
+    status: EUploadStatus.Done,
+  })),
+);
+
+async function onDeleteFile(event: { fileId: string }) {
+  if (!event.fileId) return;
+
+  await deleteFile(event.fileId);
+}
+
+async function onDownloadFile(event: { fileId: string; fileName: string }) {
+  if (!event.fileId) return;
+
+  await downloadFile(event.fileId, event.fileName);
 }
 </script>
 

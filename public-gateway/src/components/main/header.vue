@@ -20,9 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton, ElMenu, ElMenuItem, ElMenuItemGroup, ElPopover } from "element-plus";
-import { User, Setting } from "@element-plus/icons-vue";
 import useAuthStore from "@/stores/auth";
+import { Setting, User } from "@element-plus/icons-vue";
+import { ElButton, ElMenu, ElMenuItem, ElMenuItemGroup, ElPopover } from "element-plus";
 import { useRouter } from "vue-router";
 
 const { state, logout } = useAuthStore();

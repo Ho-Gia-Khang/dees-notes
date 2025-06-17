@@ -2,14 +2,15 @@ FROM node:23-alpine
 
 WORKDIR /default-gateway
 
-COPY /default-gateway/package*.json ./
+COPY package*.json ./
 
-ENV PORT=3002
+ENV PORT=3002 \ 
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/document?schema=public 
 
 RUN npm install 
 
-COPY /default-gateway/src ./src
-COPY /default-gateway/tsconfig.json tsconfig.json
+COPY /src ./src
+COPY /tsconfig.json ./
 
 RUN npm run build
 

@@ -16,6 +16,8 @@ const useAuthStore = defineStore("authStore", () => {
   const userApi = useUserApi();
 
   const role = ref<string | null>(null);
+  const userId = ref<string>("");
+  const userName = ref<string>("");
   const isAuthenticated = ref(false);
   const session = ref<{ [key: string]: any }>({});
 
@@ -82,6 +84,8 @@ const useAuthStore = defineStore("authStore", () => {
       httpClient.setToken(token);
       const decodedToken = jwtDecode(token) as any;
       role.value = decodedToken.role;
+      userId.value = decodedToken.id ?? "";
+      userName.value = decodedToken.userName ?? "";
       isAuthenticated.value = true;
     } else {
       isAuthenticated.value = false;
@@ -139,6 +143,7 @@ const useAuthStore = defineStore("authStore", () => {
   function clearSession() {
     session.value = {};
     role.value = null;
+    userId.value = "";
     isAuthenticated.value = false;
     localStorage.clear();
     sessionStorage.clear();
@@ -164,6 +169,8 @@ const useAuthStore = defineStore("authStore", () => {
     state: {
       isAuthenticated,
       role,
+      userId,
+      userName,
       isAdmin,
     },
     login,
