@@ -9,12 +9,14 @@ export enum ERoles {
 export default interface IUser {
   id: string;
   phoneNumber: string;
+  userName: string;
   role: ERoles;
   createdAt: Date;
 }
 
 export interface UserInput {
   phoneNumber: string;
+  userName: string;
   password: string;
   role: ERoles;
   comparePassword: (candidatePassword: string) => Promise<Boolean>;
@@ -22,6 +24,7 @@ export interface UserInput {
 
 export interface UpdateUserInput {
   phoneNumber?: string;
+  userName?: string;
   password?: string;
 }
 
@@ -33,6 +36,9 @@ export const createUserSchema = object({
     password: string({
       required_error: "Password is required",
     }).min(6, "Password too short, please enter at least 6 characters"),
+    userName: string({
+      required_error: "User Name is required",
+    }).min(3, "User Name must be at least 3 characters long"),
     role: string().optional(),
     passwordConfirmation: string({
       required_error: "Password confirmation is required",

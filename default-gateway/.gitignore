@@ -3,5 +3,5 @@ node_modules/
 .env.*
 dist/
 
-prisma/client
-prisma/migrations
+prisma/*
+!prisma/schema.prisma

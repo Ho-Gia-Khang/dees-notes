@@ -9,7 +9,12 @@ export enum EUploadStatus {
 
 export interface IFileIntermediate {
   id: string;
-  file: File;
+  file?: File;
+  name: string;
+  size: number;
+  type: string;
+  uploadedAt?: String;
+  uploadedBy?: string;
   status: EUploadStatus;
   error?: string;
   task?: {

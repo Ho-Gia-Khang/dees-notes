@@ -60,6 +60,7 @@ export const createUserHandler = async (
       phoneNumber: createUserPayload.phoneNumber,
       password: createUserPayload.password,
       role: createUserPayload.role,
+      userName: createUserPayload.userName,
     });
 
     res.locals.user = newUser;
@@ -87,6 +88,7 @@ export const updateUserHandler = async (
       role: user.role as ERoles, // Keep the existing role
       phoneNumber: user.phoneNumber, // Keep the existing phone number
       password: user.password, // Keep the existing password
+      userName: user.userName, // Keep the existing user name
     };
 
     if (req.body.phoneNumber) {
@@ -98,6 +100,10 @@ export const updateUserHandler = async (
         req.body.password,
         bcrypt.genSaltSync(10)
       );
+    }
+
+    if (req.body.userName) {
+      updateUserPayload.userName = req.body.userName;
     }
 
     await updateUser(updateUserPayload);
@@ -114,7 +120,7 @@ export const deleteCurrentUserHandler = async (req: Request, res: Response) => {
     const userId = res.locals.user.id;
     const user = await findUser(userId);
     if (!user) {
-      res.status(EHttpStatusCode.NOT_FOUND).send("User not found");
+      res.status(EHttpStatusCode.NOT_FOUND).send({ message: "User not found" });
     }
 
     await deleteUserById(userId);

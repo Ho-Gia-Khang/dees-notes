@@ -59,17 +59,17 @@
       <ElTableColumn type="selection" width="55" />
       <ElTableColumn label="File Name" show-overflow-tooltip>
         <template #default="{ row }">
-          <span>{{ row.file.name }}</span>
+          <span>{{ row.name }}</span>
         </template>
       </ElTableColumn>
       <ElTableColumn label="File Size">
         <template #default="{ row }">
-          <span>{{ (row.file.size / 1024 / 1024).toFixed(2) }} MB</span>
+          <span>{{ (row.size / 1024 / 1024).toFixed(2) }} MB</span>
         </template>
       </ElTableColumn>
       <ElTableColumn label="Uploaded At">
         <template #default="{ row }">
-          <span>{{ new Date().toLocaleDateString() }}</span>
+          <span>{{ row.uploadedAt }}</span>
         </template>
       </ElTableColumn>
       <ElTableColumn label="Actions">
@@ -78,19 +78,21 @@
           <ElTag v-else-if="row.status === EUploadStatus.Pending" type="primary"> Pending </ElTag>
           <div v-else-if="row.status === EUploadStatus.Uploading" class="btn-group">
             <ElIcon class="is-loading"> <Loading /> </ElIcon>
-            <ElButton :icon="Close" plain type="danger" circle />
+            <ElButton :icon="Close" plain type="danger" circle @click="row.task?.cancel" />
           </div>
           <div v-else-if="row.status === EUploadStatus.Canceled" class="btn-group">
             <ElTag type="warning">Canceled</ElTag>
-            <ElButton :icon="RefreshLeft" plain type="primary" circle />
+            <ElButton :icon="RefreshLeft" plain type="primary" circle @click="row.task?.retry" />
+            <ElButton :icon="Delete" plain type="danger" circle @click="removeFile(row)" />
           </div>
           <div v-else-if="row.status === EUploadStatus.Error" class="btn-group">
             <ElTag type="danger">{{ row.error || "Error" }}</ElTag>
-            <ElButton :icon="RefreshLeft" plain type="primary" circle />
+            <ElButton :icon="RefreshLeft" plain type="primary" circle @click="row.task?.retry" />
+            <ElButton :icon="Delete" plain type="danger" circle @click="removeFile(row)" />
           </div>
           <div v-else>
-            <ElButton :icon="View" plain type="primary" circle />
-            <ElButton :icon="Delete" plain type="danger" circle />
+            <ElButton :icon="Download" plain type="primary" circle @click="downloadFile(row)" />
+            <ElButton :icon="Delete" plain type="danger" circle @click="deleteFile(row)" />
           </div>
         </template>
       </ElTableColumn>
@@ -103,17 +105,9 @@ import { EUploadStatus, type IFileIntermediate } from "@/types/shared/fileUpload
 import uniqueId from "lodash/uniqueId";
 import { FILE_SIZE_LIMIT_MB } from "../documents/constants";
 
-import { computed, onMounted, ref, type PropType } from "vue";
-import { ElButton, ElCheckbox, ElIcon, ElTable, ElTableColumn, ElTag } from "element-plus";
-import {
-  Upload,
-  Delete,
-  Close,
-  RefreshLeft,
-  Loading,
-  View,
-  Download,
-} from "@element-plus/icons-vue";
+import { Close, Delete, Download, Loading, RefreshLeft, Upload } from "@element-plus/icons-vue";
+import { ElButton, ElIcon, ElTable, ElTableColumn, ElTag } from "element-plus";
+import { computed, ref, type PropType } from "vue";
 
 const props = defineProps({
   allowedFileTypes: {
@@ -130,7 +124,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["upload"]);
+const emits = defineEmits(["upload", "delete", "download", "batchDownload", "batchDelete"]);
 
 const model = defineModel<IFileIntermediate[]>({ default: () => [] });
 
@@ -147,7 +141,7 @@ function onDragEnter(event: DragEvent) {
 
   isDragging.value = true;
 }
-function onDragLeave(event: DragEvent) {
+function onDragLeave(_: DragEvent) {
   if (props.loading) return;
   isDragging.value = false;
 }
@@ -194,6 +188,9 @@ function receiveFiles(files: FileList) {
     }
 
     newFiles.push({
+      name: file.name,
+      type: fileType,
+      size: file.size,
       file,
       id,
       error,
@@ -212,6 +209,19 @@ function onSelectFile(data: IFileIntermediate[]) {
 
 function onSelectAllFiles(selected: any[]) {
   selectedFiles.value = selected ?? [];
+}
+
+function removeFile(file: IFileIntermediate) {
+  model.value = model.value.filter((f) => f.id !== file.id);
+}
+
+async function downloadFile(file: IFileIntermediate) {
+  // Implement file viewing logic here
+  emits("download", { fileId: file.id, fileName: file.name });
+}
+
+async function deleteFile(file: IFileIntermediate) {
+  emits("delete", { fileId: file.id });
 }
 
 async function startUpload() {

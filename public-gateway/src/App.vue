@@ -14,8 +14,8 @@
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
-import Nav from "./components/main/nav.vue";
 import Header from "./components/main/header.vue";
+import Nav from "./components/main/nav.vue";
 import useAuthStore from "./stores/auth";
 
 const { state } = useAuthStore();
