@@ -6,7 +6,7 @@ COPY /default-gateway/tsconfig.json ./
 COPY /default-gateway/prisma ./prisma
 
 ENV PORT=3002 \ 
-    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/document?schema=public 
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/document?schema=public
 
 RUN npm ci
 

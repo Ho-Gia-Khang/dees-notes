@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec npx ts-node src/index.ts",
-    "start": "node src/index.js",
+    "start": "node src/index.ts",
     "build": "tsc --project ./"
   },
   "keywords": [],
@@ -19,7 +19,6 @@
     "express-fileupload": "^1.5.1"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
     "@types/express-fileupload": "^1.5.1",
     "@types/node": "^22.13.8",
