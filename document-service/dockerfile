@@ -1,20 +1,31 @@
-FROM node:23-alpine
+FROM node:23-alpine AS builder
 
-WORKDIR /default-gateway
-
-COPY package*.json ./
+COPY /default-gateway/package*.json ./
+COPY /default-gateway/src ./src
+COPY /default-gateway/tsconfig.json ./
+COPY /default-gateway/prisma ./prisma
 
 ENV PORT=3002 \ 
     DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/document?schema=public 
 
-RUN npm install 
+RUN npm ci
 
-COPY /src ./src
-COPY /tsconfig.json ./
+RUN npx prisma generate
+RUN npx prisma db push
 
 RUN npm run build
 
-WORKDIR /default-gateway/dist
+FROM node:23-alpine
+
+ENV PORT=3002 \ 
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/document?schema=public
+
+COPY --from=builder /dist ./dist
+COPY --from=builder /prisma ./prisma
+COPY --from=builder /node_modules ./node_modules
+COPY package*.json ./
+
+WORKDIR /dist
 
 USER node
 

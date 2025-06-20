@@ -10,7 +10,7 @@ ENV PORT=3000 \
     DOCUMENT_SERVICE_URL=http://document:3002 \ 
     JELLYFIN_URL=http://host.docker.internal:8096 \
     ORIGIN=http://deesnotes.cloud \
-    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/user?schema=public 
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/auth?schema=public 
 
 RUN npm ci
     
@@ -27,7 +27,7 @@ ENV PORT=3000 \
     DOCUMENT_SERVICE_URL=http://document:3002 \ 
     JELLYFIN_URL=http://host.docker.internal:8096 \
     ORIGIN=http://deesnotes.cloud \
-    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/postgres?schema=public 
+    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/auth?schema=public 
 
 COPY --from=builder /dist ./dist
 COPY --from=builder /prisma ./prisma

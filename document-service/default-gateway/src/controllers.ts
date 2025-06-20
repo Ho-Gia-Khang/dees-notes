@@ -12,7 +12,7 @@ import {
 } from "./services/services";
 
 function getFilePath(fileId: string, ext: string): string {
-  return path.join(__dirname, "../../assets", fileId + "." + ext);
+  return path.join(__dirname, "../assets", fileId + "." + ext);
 }
 
 export async function getDocumentsList(req: Request, res: Response) {
@@ -122,9 +122,7 @@ export async function handleDeleteFile(req: Request, res: Response) {
     return;
   }
 
-  console.log(" req.params:", req.params);
   const fileId = req.params.id;
-  console.log(" fileId:", fileId);
   if (!fileId) {
     res.status(400).send({ message: "File ID is required." });
     return;
