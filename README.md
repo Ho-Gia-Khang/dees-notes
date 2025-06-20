@@ -32,8 +32,16 @@
 
 2. Build the containers:
 
+Build the database first
+
 ```
-docker compose up --build -d
+docker compose up -d postgres
+```
+
+Then build all other services
+
+```
+docker compose up -d
 ```
 
 ## 3. Configure Reverse Proxy
@@ -103,6 +111,14 @@ To turn it off, stop all the containers or
 ```
 docker compose down
 ```
+
+If you see in correct data and want a refresh, run
+
+```
+docker compose down --volumes
+```
+
+This will clear all the cached data in Docker
 
 ## 7. Accounts
 

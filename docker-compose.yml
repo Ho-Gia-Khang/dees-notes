@@ -1,59 +1,15 @@
 services:
-  ############################################################
-  ### private services, only accessible by 'public-gateway'###
-  ############################################################
-
-  # media gateway - the gateway for public gateway to access media service:
-  media:
-    build:
-      context: ./media-service
-      dockerfile: dockerfile
-    container_name: media
-    networks:
-      - private_net
-  # jellyfin - the media server
-  jellyfin:
-    image: jellyfin/jellyfin:latest
-    container_name: jellyfin
-    # Add in the UID and GID that you would like to run jellyfin as in the user line below, or remove the user line to use the default (root).
-    user: 1000:1000
-    # network_mode: "host"
-    ports:
-      - "8096:8096" # HTTP Port
-
-    volumes:
-      - ./media-service/jellyfin/config:/config
-      - ./media-service/jellyfin/cache:/cache
-      - type: bind
-        source: ./media-service/jellyfin/media
-        target: /media
-      - type: bind
-        source: ./media-service/jellyfin/media2
-        target: /media2
-        read_only: true
-    restart: unless-stopped
-    networks:
-      - public_net
-
-  # Document service
-  document:
-    build:
-      context: ./document-service
-      dockerfile: dockerfile
-    container_name: document
-    networks:
-      - private_net
-
   # database
   postgres:
     image: postgres:latest
     container_name: postgres
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_MULTIPLE_DATABASES: auth,document,media
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: prisma
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./postgres-multiple-databases/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
     ports:
       - "5432:5432"
     networks:
@@ -87,49 +43,92 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - private_net
       - public_net
-  app:
-    container_name: app
+  # app:
+  #   container_name: app
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: dockerfile
+  #   restart: unless-stopped
+  #   ports:
+  #     # These ports are in format <host-port>:<container-port>
+  #     - "80:8080" # Public HTTP Port
+  #     - "443:4443" # Public HTTPS Port
+  #     - "8181:8181" # Admin Web Port
+  #     # Add any other Stream port you want to expose
+  #     # - '21:21' # FTP
+
+  #   # Uncomment the next line if you uncomment anything in the section
+  #   # environment:
+  #   # Uncomment this if you want to change the location of
+  #   # the SQLite DB file within the container
+  #   # DB_SQLITE_FILE: "/data/database.sqlite"
+
+  #   # Uncomment this if IPv6 is not enabled on your host
+  #   # DISABLE_IPV6: 'true'
+
+  #   volumes:
+  #     # - ./nginx/data:/data
+  #     # - ./nginx/letsencrypt:/etc/letsencrypt:Z
+  #     - "./nginx:/config:rw"
+
+  # cloudflare-ddns:
+  #   build:
+  #     context: ./cloudflare-ddns
+  #     dockerfile: dockerfile
+  #   container_name: cloudflare-ddns
+  #   volumes:
+  #     - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
+  #   restart: unless-stopped
+
+  ############################################################
+  ### private services, only accessible by 'public-gateway'###
+  ############################################################
+
+  # media gateway - the gateway for public gateway to access media service:
+  media:
     build:
-      context: ./nginx
+      context: ./media-service
       dockerfile: dockerfile
-    restart: unless-stopped
+    container_name: media
+    networks:
+      - public_net
+  # jellyfin - the media server
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    # Add in the UID and GID that you would like to run jellyfin as in the user line below, or remove the user line to use the default (root).
+    user: 1000:1000
+    # network_mode: "host"
     ports:
-      # These ports are in format <host-port>:<container-port>
-      - "80:8080" # Public HTTP Port
-      - "443:4443" # Public HTTPS Port
-      - "8181:8181" # Admin Web Port
-      # Add any other Stream port you want to expose
-      # - '21:21' # FTP
-
-    # Uncomment the next line if you uncomment anything in the section
-    # environment:
-    # Uncomment this if you want to change the location of
-    # the SQLite DB file within the container
-    # DB_SQLITE_FILE: "/data/database.sqlite"
-
-    # Uncomment this if IPv6 is not enabled on your host
-    # DISABLE_IPV6: 'true'
+      - "8096:8096" # HTTP Port
 
     volumes:
-      # - ./nginx/data:/data
-      # - ./nginx/letsencrypt:/etc/letsencrypt:Z
-      - "./nginx:/config:rw"
-
-  cloudflare-ddns:
-    build:
-      context: ./cloudflare-ddns
-      dockerfile: dockerfile
-    container_name: cloudflare-ddns
-    volumes:
-      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
+      - ./media-service/jellyfin/config:/config
+      - ./media-service/jellyfin/cache:/cache
+      - type: bind
+        source: ./media-service/jellyfin/media
+        target: /media
+      - type: bind
+        source: ./media-service/jellyfin/media2
+        target: /media2
+        read_only: true
     restart: unless-stopped
+    networks:
+      - public_net
+
+  # Document service
+  document:
+    build:
+      context: ./document-service
+      dockerfile: dockerfile
+    container_name: document
+    volumes:
+      - ./document-service/default-gateway/assets:/assets
+    networks:
+      - public_net
 
 networks:
-  private_net:
-    driver: bridge
-    internal: true # Makes the network isolated from external docker-compose file
   public_net:
     driver: bridge
 
