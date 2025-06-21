@@ -8,3 +8,5 @@ export enum ERoles {
 }
 
 export const LOGIN_ROUTE = "/auth/login";
+
+export const CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB

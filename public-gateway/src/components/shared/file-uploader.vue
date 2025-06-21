@@ -1,5 +1,5 @@
 <template>
-  <div class="file_uploader">
+  <form class="file_uploader">
     <div
       class="file_uploader-upload_area"
       :class="{ dragging: isDragging, disabled: loading }"
@@ -97,7 +97,7 @@
         </template>
       </ElTableColumn>
     </ElTable>
-  </div>
+  </form>
 </template>
 
 <script setup lang="ts">
