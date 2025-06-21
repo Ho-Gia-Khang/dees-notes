@@ -24,7 +24,8 @@ export function provideUploadController() {
     formData.append("userId", state.userId);
     formData.append("userName", state.userName);
 
-    const handler = httpClient.fileUploadRequest(url, formData);
+    const controller = new AbortController();
+    const handler = httpClient.fileUploadRequest(url, formData, controller);
     uploadController.cancel = handler.cancel;
 
     const response = await handler.caller();

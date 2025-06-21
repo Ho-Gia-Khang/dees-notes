@@ -16,7 +16,6 @@ const useDocumentServiceApi = defineStore("documentServiceApi", () => {
   }
 
   async function deleteFile(fileId: string): Promise<void> {
-    // const userId = userId;
     const url = `${BASE_DOCUMENT_URL}/${fileId}`;
 
     await httpClient.httpDelete(`${url}?userId=${state.userId}`);

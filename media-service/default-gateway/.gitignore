@@ -3,5 +3,6 @@ node_modules/
 .env.*
 dist/
 assets/
+chunks/
 prisma/*
 !prisma/schema.prisma

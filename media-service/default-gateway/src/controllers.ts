@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { UploadedFile } from "express-fileupload/index";
+import fs from "fs-extra";
 import path from "path";
-import fs from "fs";
 
+import { uploadPath, uploadPathChunks } from "./constants";
 import { IFileResponse } from "./models";
 import {
   deleteFile,
@@ -10,9 +10,24 @@ import {
   getFileById,
   saveFile,
 } from "./services/services";
+import { delay } from "./utils";
 
-function getFilePath(fileId: string, ext: string): string {
-  return path.join(__dirname, "../assets", fileId + "." + ext);
+const MAX_RETRIES = 5;
+const RETRY_DELAY = 1000; // 1 second
+
+async function getFilePath(fileName: string): Promise<string> {
+  // Ensure the upload directories exist
+  await fs.mkdir(uploadPath, { recursive: true });
+
+  return path.join(uploadPath, fileName);
+}
+
+async function getFileTempPath(
+  fileName: string,
+  part: number
+): Promise<string> {
+  await fs.mkdir(uploadPathChunks, { recursive: true });
+  return path.join(uploadPathChunks, `${fileName}.part_${part}`);
 }
 
 export async function getDocumentsList(req: Request, res: Response) {
@@ -30,50 +45,133 @@ export async function getDocumentsList(req: Request, res: Response) {
   });
 }
 
+async function mergeChunks(fileName: string, totalChunks: number) {
+  const filePath = await getFilePath(fileName);
+  console.log(" filePath:", filePath);
+  const writeStream = fs.createWriteStream(filePath);
+
+  for (let i = 0; i < totalChunks; i++) {
+    const chunkPath = await getFileTempPath(fileName, i);
+    let retries = 0;
+
+    while (retries < MAX_RETRIES) {
+      try {
+        const chunkStream = fs.createReadStream(chunkPath);
+        await new Promise<void>((resolve, reject) => {
+          chunkStream.pipe(writeStream, { end: false });
+          chunkStream.on("end", resolve);
+          chunkStream.on("error", reject);
+        });
+        console.log(`Chunk ${i} merged successfully`);
+        await fs.promises.unlink(chunkPath);
+        console.log(`Chunk ${i} deleted successfully`);
+        break; // Success, move to next chunk
+      } catch (error: any) {
+        if (error.code === "EBUSY") {
+          console.log(
+            `Chunk ${i} is busy, retrying... (${retries + 1}/${MAX_RETRIES})`
+          );
+          await delay(RETRY_DELAY);
+          retries++;
+        } else {
+          throw error; // Unexpected error, rethrow
+        }
+      }
+    }
+
+    if (retries === MAX_RETRIES) {
+      console.error(`Failed to merge chunk ${i} after ${MAX_RETRIES} retries`);
+      writeStream.end();
+      throw new Error(`Failed to merge chunk ${i}`);
+    }
+  }
+
+  writeStream.end();
+  console.log("Chunks merged successfully");
+}
+
 export async function handleUpload(req: Request, res: Response) {
   const userId = req.body.userId as string;
-  const userName = req.body.userName as string;
   if (!userId) {
     res.status(400).send({ message: "User ID is required." });
     return;
   }
-  const files = req.files;
 
-  if (!files) {
-    res.sendStatus(400).send({ message: "No files were uploaded." });
+  if (!req.file) {
+    res.status(400).send({ message: "No video file uploaded." });
     return;
   }
 
-  // We only support a single file upload at the moment
-  if (Object.keys(files).length > 1) {
-    res.status(400).send({ message: "Multiple files are not supported." });
+  try {
+    const chunkNumber = Number(req.body.chunkNumber);
+    const totalChunks = Number(req.body.totalChunk);
+    const fileName = req.body.originalname.replace(/\s+/g, "");
+
+    if (chunkNumber === totalChunks - 1) {
+      await mergeChunks(fileName, totalChunks);
+    }
+
+    const fileInfo = {
+      filename: fileName,
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+    };
+
+    res.status(200).send({
+      message: "Chunk uploaded successfully",
+      file: fileInfo,
+    });
+  } catch (error) {
+    console.error("Error during file upload:", error);
+    res
+      .status(500)
+      .send({ message: "An error occurred while uploading the video." });
+  }
+}
+
+export async function handleUploadComplete(req: Request, res: Response) {
+  const userId = req.body.userId as string;
+
+  if (!userId) {
+    res.status(400).send({ message: "User ID is required." });
     return;
   }
 
-  const file = files[Object.keys(files)[0]] as UploadedFile;
-  const type = file.mimetype.split("/")[1];
+  const userName = req.body.userName as string;
+  if (!userName) {
+    res.status(400).send({ message: "User name is required." });
+    return;
+  }
 
+  const fileName = req.body.fileName as string;
+  if (!fileName) {
+    res.status(400).send({ message: "File name is required." });
+  }
+
+  const fileSize = req.body.fileSize as number;
+  if (!fileSize) {
+    res.status(400).send({ message: "File size is required." });
+  }
+
+  const mimetype = req.body.mimetype as string;
+  if (!mimetype) {
+    res.status(400).send({ message: "File type is required." });
+    return;
+  }
+
+  const type = mimetype.split("/")[1];
   const savedFile = await saveFile({
     userId,
-    name: file.name,
+    name: fileName,
     uploadedBy: userName,
-    size: file.size,
+    size: fileSize,
     type,
-  });
-
-  const filePath = getFilePath(savedFile.id, type);
-  file.mv(filePath, (err) => {
-    if (err) {
-      console.error("File upload error:", err);
-      res.status(500).send({ message: "Failed to upload file." });
-      return;
-    }
   });
 
   const response: IFileResponse = {
     id: savedFile.id,
-    name: file.name,
-    size: file.size,
+    name: fileName,
+    size: fileSize,
     type,
     uploadedAt: savedFile.uploadedAt.toISOString(),
     uploadedBy: savedFile.uploadedBy,
@@ -100,7 +198,7 @@ export async function handleDownloadFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = getFilePath(fileId, file.type);
+  const filePath = await getFilePath(file.name);
   if (!fs.existsSync(filePath)) {
     res.status(404).send({ message: "File not found in system." });
     await deleteFile(fileId);
@@ -141,7 +239,7 @@ export async function handleDeleteFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = getFilePath(fileId, file.type);
+  const filePath = await getFilePath(file.name);
   fs.unlink(filePath, (err) => {
     if (err) {
       console.error("File deletion error:", err);

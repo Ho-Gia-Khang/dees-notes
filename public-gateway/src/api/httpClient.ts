@@ -89,10 +89,9 @@ const useHttpClient = defineStore("httpClient", () => {
     document.body.removeChild(a);
   }
 
-  function fileUploadRequest(url: string, formData: FormData) {
+  function fileUploadRequest(url: string, formData: FormData, controller: AbortController) {
     const headers = createHeaders();
 
-    const controller = new AbortController();
     const signal = controller.signal;
 
     const caller = async () => {

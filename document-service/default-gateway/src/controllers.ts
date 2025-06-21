@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UploadedFile } from "express-fileupload/index";
 import path from "path";
-import fs from "fs";
+import fs from "fs-extra";
 
 import { IFileResponse } from "./models";
 import {
@@ -11,8 +11,13 @@ import {
   saveFile,
 } from "./services/services";
 
-function getFilePath(fileId: string, ext: string): string {
-  return path.join(__dirname, "../assets", fileId + "." + ext);
+const uploadPath = path.join(__dirname, "../assets");
+
+async function getFilePath(fileId: string, ext: string): Promise<string> {
+  // Ensure the upload directories exist
+  await fs.mkdir(uploadPath, { recursive: true });
+
+  return path.join(uploadPath, fileId + "." + ext);
 }
 
 export async function getDocumentsList(req: Request, res: Response) {
@@ -61,7 +66,7 @@ export async function handleUpload(req: Request, res: Response) {
     type,
   });
 
-  const filePath = getFilePath(savedFile.id, type);
+  const filePath = await getFilePath(savedFile.id, type);
   file.mv(filePath, (err) => {
     if (err) {
       console.error("File upload error:", err);
@@ -100,7 +105,7 @@ export async function handleDownloadFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = getFilePath(fileId, file.type);
+  const filePath = await getFilePath(fileId, file.type);
   if (!fs.existsSync(filePath)) {
     res.status(404).send({ message: "File not found in system." });
     await deleteFile(fileId);
@@ -141,7 +146,7 @@ export async function handleDeleteFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = getFilePath(fileId, file.type);
+  const filePath = await getFilePath(fileId, file.type);
   fs.unlink(filePath, (err) => {
     if (err) {
       console.error("File deletion error:", err);
