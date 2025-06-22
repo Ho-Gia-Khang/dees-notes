@@ -1,0 +1,2 @@
+# Create a .gitattributes file
+echo "*.sh text eol=lf" > .gitattributes
