@@ -1,2 +1,2 @@
-# Create a .gitattributes file
-echo "*.sh text eol=lf" > .gitattributes
+# Never modify line endings of our bash scripts
+*.sh -crlf
