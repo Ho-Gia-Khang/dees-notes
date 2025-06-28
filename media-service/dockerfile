@@ -11,8 +11,10 @@ ENV PORT=3001 \
 
 RUN npm ci
 
+RUN npx prisma migrate deploy
 RUN npx prisma generate
-RUN npx prisma db push
+
+RUN npm run build
 
 # Stage 2: run the application as user node
 FROM node:23-alpine
