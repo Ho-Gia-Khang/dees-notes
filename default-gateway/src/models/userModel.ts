@@ -31,17 +31,17 @@ export interface UpdateUserInput {
 export const createUserSchema = object({
   body: object({
     phoneNumber: string({
-      required_error: "Phone Number is required",
+      error: "Phone Number is required",
     }).regex(phoneRegex, "Please enter a valid phone number"),
     password: string({
-      required_error: "Password is required",
+      error: "Password is required",
     }).min(6, "Password too short, please enter at least 6 characters"),
     userName: string({
-      required_error: "User Name is required",
+      error: "User Name is required",
     }).min(3, "User Name must be at least 3 characters long"),
     role: string().optional(),
     passwordConfirmation: string({
-      required_error: "Password confirmation is required",
+      error: "Password confirmation is required",
     }),
   }).refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",

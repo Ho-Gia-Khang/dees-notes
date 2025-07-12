@@ -21,6 +21,8 @@ export function provideUploadController() {
     const formData = new FormData();
 
     formData.append(file.name, file);
+    formData.append("file", file, file.name);
+    formData.append("originalname", file, file.name);
     formData.append("userId", state.userId);
     formData.append("userName", state.userName);
 

@@ -13,5 +13,8 @@ export const ALLOWED_FILE_TYPES = [
 export const uploadPath = path.join(__dirname, "../assets");
 export const uploadPathChunks = path.join(__dirname, "../chunks");
 
-const MB = 500; // 500 MB
-export const CHUNK_SIZE_LIMIT_MB = MB * 1024 * 1024; // Convert MB to bytes
+const CHUNK_SIZE_MB = 500; // 500 MB
+export const CHUNK_SIZE_LIMIT_MB = CHUNK_SIZE_MB * 1024 * 1024; // Convert MB to bytes
+
+const FILE_SIZE_MB = 50; // 50 MB
+export const FILE_SIZE_LIMIT_MB = FILE_SIZE_MB * 1024 * 1024; // Convert MB to bytes

@@ -24,24 +24,36 @@ import {
 const userRouter = express.Router();
 
 // static routes
-userRouter.get("/current", requireUser, getCurrentUser);
-userRouter.get("/usersList", requireUser, getUsersList);
-userRouter.post("/create", validate(createUserSchema), createUserHandler);
+userRouter.get("/current", [express.json(), requireUser], getCurrentUser);
+userRouter.get("/usersList", [express.json(), requireUser], getUsersList);
+userRouter.post(
+  "/create",
+  [express.json(), validate(createUserSchema)],
+  createUserHandler
+);
 userRouter.post(
   "/login",
-  validate(createSessionSchema),
+  [express.json(), validate(createSessionSchema)],
   createUserSessionHandler
 );
 userRouter.post(
   "/loginSilent",
-  validate(renewSessionSchema),
+  [express.json(), validate(renewSessionSchema)],
   renewSessionHandler
 );
-userRouter.put("/update", requireUser, updateUserHandler);
-userRouter.delete("/logout", requireUser, deleteSessionHandler);
-userRouter.delete("/deleteCurrent", requireUser, deleteCurrentUserHandler);
+userRouter.put("/update", [express.json(), requireUser], updateUserHandler);
+userRouter.delete("/logout", express.json(), deleteSessionHandler);
+userRouter.delete(
+  "/deleteCurrent",
+  [express.json(), requireUser],
+  deleteCurrentUserHandler
+);
 
 // dynamic routes
-userRouter.delete("/delete/:phoneNumber", requireUser, deleteUser);
+userRouter.delete(
+  "/delete/:phoneNumber",
+  [express.json(), requireUser],
+  deleteUser
+);
 
 export default userRouter;

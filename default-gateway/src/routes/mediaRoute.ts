@@ -16,18 +16,36 @@ const jellyfinProxyMiddleware = createProxyMiddleware<Request, Response>({
   },
   ws: true,
 });
-
-mediaRouter.get("/", requireUser, async (_, res: Response) => {
-  const rp = await fetch(config.URLs.MEDIA_SERVICE_URL);
-  const message = await rp.json();
-  res.status(200).send(message);
+const mediaServiceProxyMiddleware = createProxyMiddleware<Request, Response>({
+  target: config.URLs.MEDIA_SERVICE_URL,
+  changeOrigin: true,
+  on: {
+    error: (err) => {
+      console.error("Proxy error:", err.message);
+    },
+  },
+  ws: true,
 });
 
-mediaRouter.get("/player", requireUser, (_, res: Response) => {
-  res.status(200).send({
-    url: `${config.URLs.ORIGIN}/media/player/jellyfin/`,
-  });
-});
+mediaRouter.use("/", requireUser, mediaServiceProxyMiddleware);
+mediaRouter.use("/upload", requireUser, mediaServiceProxyMiddleware);
+mediaRouter.use("/uploadVideo", requireUser, mediaServiceProxyMiddleware);
+mediaRouter.use(
+  "/uploadVideoComplete",
+  requireUser,
+  mediaServiceProxyMiddleware
+);
+mediaRouter.use("/delete/:id", requireUser, mediaServiceProxyMiddleware);
+
+mediaRouter.get(
+  "/player",
+  [express.json(), requireUser],
+  (_: Request, res: Response) => {
+    res.status(200).send({
+      url: `${config.URLs.ORIGIN}/media/player/jellyfin/`,
+    });
+  }
+);
 mediaRouter.use("/player/jellyfin", requireUser, jellyfinProxyMiddleware);
 
 export default mediaRouter;

@@ -29,7 +29,9 @@ COPY package*.json ./
 
 WORKDIR /dist
 
-USER node
+# USER node
+
+# RUN chmod -R a+rw ./chunks
 
 EXPOSE ${PORT}
 

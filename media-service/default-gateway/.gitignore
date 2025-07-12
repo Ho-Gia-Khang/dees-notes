@@ -4,5 +4,4 @@ node_modules/
 dist/
 assets/
 chunks/
-prisma/*
-!prisma/schema.prisma
+prisma/client

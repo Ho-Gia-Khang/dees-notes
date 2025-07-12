@@ -101,14 +101,16 @@ const useHttpClient = defineStore("httpClient", () => {
           headers,
           body: formData,
           signal,
-        }).then((response) => {
+        }).then(async (response) => {
           if (!response.ok) {
             if (response.status === EHttpStatusCode.UNAUTHORIZED) {
               auth.logout();
             }
-            response.json().then((data) => {
-              reject(data);
-            });
+            if (response.status === EHttpStatusCode.INTERNAL_SERVER_ERROR) {
+              reject(new Error("Internal Server Error"));
+              return;
+            }
+            reject(await response.json());
             return;
           }
 
