@@ -1,13 +1,14 @@
 import express, { Request } from "express";
 
 import {
-  getDocumentsList,
+  getFilesList,
   handleDeleteFile,
   handleDownloadFile,
-  handleUpload,
-  handleUploadComplete,
+  handleUploadImage,
+  handleUploadVideo,
+  handleUploadVideoComplete,
 } from "./controllers";
-import { upload } from "./middlewares/multer";
+import { uploadVideo, uploadImage } from "./middlewares/multer";
 import multer from "multer";
 import { uploadPathChunks } from "./constants";
 import fs from "fs-extra";
@@ -44,10 +45,11 @@ router.use((err: any, req: Request, res: any, next: any) => {
   }
   next();
 });
-router.get("/:userId", getDocumentsList);
+router.get("/:userId", getFilesList);
 router.get("/download/:id", handleDownloadFile);
-router.post("/upload", upload.single("video"), handleUpload);
-router.post("/uploadComplete", handleUploadComplete);
+router.post("/upload", uploadImage.single("file"), handleUploadImage);
+router.post("/uploadVideo", uploadVideo.single("video"), handleUploadVideo);
+router.post("/uploadVideoComplete", handleUploadVideoComplete);
 router.delete("/delete/:id", handleDeleteFile);
 
 export default router;

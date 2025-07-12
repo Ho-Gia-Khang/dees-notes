@@ -12,9 +12,8 @@ import { checkUsersStatus } from "./middlewares/checkUsersStatus";
 const app: Express = express();
 
 app.use(cors(config.corsOptions));
-app.use(express.json());
-app.use(checkUsersStatus);
 app.use(deserializeUser);
+app.use(checkUsersStatus);
 
 app.get("/", (_, res: Response) => {
   res.status(200).send({ message: "Hello from Default gateway" });

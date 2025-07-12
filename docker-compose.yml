@@ -91,6 +91,9 @@ services:
       context: ./media-service
       dockerfile: dockerfile
     container_name: media
+    volumes:
+      - ./media-service/default-gateway/assets:/assets:rw
+      - ./media-service/default-gateway/chunks:/chunks:rw
     networks:
       - public_net
   # jellyfin - the media server

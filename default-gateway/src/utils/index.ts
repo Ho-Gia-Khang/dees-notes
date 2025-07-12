@@ -1,5 +1,5 @@
 import IUser, { UserInput } from "../models/userModel";
-import { signJwt } from "./jwt";
+import { signJwt, verifyJwt } from "./jwt";
 
 interface TokensPair {
   accessToken: string;
@@ -21,4 +21,11 @@ export function generateTokens(
     { expiresIn: refreshTokenExpiry }
   );
   return { accessToken, refreshToken };
+}
+
+export function getUserInfo(accessToken: string): IUser | undefined {
+  const { decoded } = verifyJwt(accessToken);
+  console.log(" decoded:", decoded);
+
+  return;
 }

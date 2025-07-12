@@ -15,22 +15,15 @@ import { delay } from "./utils";
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 1000; // 1 second
 
-async function getFilePath(fileName: string): Promise<string> {
-  // Ensure the upload directories exist
-  await fs.mkdir(uploadPath, { recursive: true });
-
+function getFilePath(fileName: string): string {
   return path.join(uploadPath, fileName);
 }
 
-async function getFileTempPath(
-  fileName: string,
-  part: number
-): Promise<string> {
-  await fs.mkdir(uploadPathChunks, { recursive: true });
+function getFileTempPath(fileName: string, part: number): string {
   return path.join(uploadPathChunks, `${fileName}.part_${part}`);
 }
 
-export async function getDocumentsList(req: Request, res: Response) {
+export async function getFilesList(req: Request, res: Response) {
   const userId = req.params?.userId as string;
   if (!userId) {
     res.status(400).send({ message: "User ID is required." });
@@ -46,12 +39,11 @@ export async function getDocumentsList(req: Request, res: Response) {
 }
 
 async function mergeChunks(fileName: string, totalChunks: number) {
-  const filePath = await getFilePath(fileName);
-  console.log(" filePath:", filePath);
+  const filePath = getFilePath(fileName);
   const writeStream = fs.createWriteStream(filePath);
 
   for (let i = 0; i < totalChunks; i++) {
-    const chunkPath = await getFileTempPath(fileName, i);
+    const chunkPath = getFileTempPath(fileName, i);
     let retries = 0;
 
     while (retries < MAX_RETRIES) {
@@ -90,7 +82,55 @@ async function mergeChunks(fileName: string, totalChunks: number) {
   console.log("Chunks merged successfully");
 }
 
-export async function handleUpload(req: Request, res: Response) {
+export async function handleUploadImage(req: Request, res: Response) {
+  const userId = req.body.userId as string;
+  if (!userId) {
+    res.status(400).send({ message: "User ID is required." });
+    return;
+  }
+  const userName = req.body.userName as string;
+  if (!userName) {
+    res.status(400).send({ message: "User name is required." });
+    return;
+  }
+
+  if (!req.file) {
+    res.status(400).send({ message: "No image file uploaded." });
+    return;
+  }
+
+  const fileName = req.body.originalname as string;
+  if (!fileName) {
+    res.status(400).send({ message: "originalname name is required." });
+    return;
+  }
+
+  const fileSize = req.file.size as number;
+
+  const mimetype = req.file.mimetype as string;
+
+  const type = mimetype.split("/")[1];
+  const savedFile = await saveFile({
+    userId,
+    name: fileName,
+    uploadedBy: userName,
+    size: fileSize,
+    type,
+  });
+
+  const response: IFileResponse = {
+    id: savedFile.id,
+    name: fileName,
+    size: fileSize,
+    type,
+    uploadedAt: savedFile.uploadedAt.toISOString(),
+    uploadedBy: savedFile.uploadedBy,
+  };
+
+  res.status(200).send(response);
+}
+
+export async function handleUploadVideo(req: Request, res: Response) {
   const userId = req.body.userId as string;
   if (!userId) {
     res.status(400).send({ message: "User ID is required." });
@@ -129,7 +169,7 @@ export async function handleUpload(req: Request, res: Response) {
   }
 }
 
-export async function handleUploadComplete(req: Request, res: Response) {
+export async function handleUploadVideoComplete(req: Request, res: Response) {
   const userId = req.body.userId as string;
 
   if (!userId) {
@@ -145,12 +185,14 @@ export async function handleUploadComplete(req: Request, res: Response) {
 
   const fileName = req.body.fileName as string;
   if (!fileName) {
-    res.status(400).send({ message: "File name is required." });
+    res.status(400).send({ message: "originalname name is required." });
+    return;
   }
 
   const fileSize = req.body.fileSize as number;
   if (!fileSize) {
     res.status(400).send({ message: "File size is required." });
+    return;
   }
 
   const mimetype = req.body.mimetype as string;
@@ -166,6 +208,12 @@ export async function handleUploadComplete(req: Request, res: Response) {
     uploadedBy: userName,
     size: fileSize,
     type,
+  });
+
+  fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
+    if (err) {
+      console.error("Error renaming file:", err);
+    }
   });
 
   const response: IFileResponse = {
@@ -198,7 +246,7 @@ export async function handleDownloadFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = await getFilePath(file.name);
+  const filePath = getFilePath(fileId);
   if (!fs.existsSync(filePath)) {
     res.status(404).send({ message: "File not found in system." });
     await deleteFile(fileId);
@@ -239,7 +287,7 @@ export async function handleDeleteFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = await getFilePath(file.name);
+  const filePath = getFilePath(file.name);
   fs.unlink(filePath, (err) => {
     if (err) {
       console.error("File deletion error:", err);

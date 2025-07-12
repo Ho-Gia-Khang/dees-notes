@@ -3,10 +3,10 @@ import { object, string } from "zod";
 export const createSessionSchema = object({
   body: object({
     phoneNumber: string({
-      required_error: "phoneNumber is required",
+      error: "phoneNumber is required",
     }),
     password: string({
-      required_error: "Password is required",
+      error: "Password is required",
     }),
   }),
 });
@@ -14,7 +14,7 @@ export const createSessionSchema = object({
 export const renewSessionSchema = object({
   body: object({
     refreshToken: string({
-      required_error: "refreshToken is required",
+      error: "refreshToken is required",
     }),
   }),
 });

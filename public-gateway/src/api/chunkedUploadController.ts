@@ -29,7 +29,7 @@ export function provideChunkedUploadController() {
   const { state } = useAuthStore();
 
   async function uploadChunk(payload: IChunkedUploadRequest) {
-    const url = `${BASE_URL}/${payload.destination}/upload`;
+    const url = `${BASE_URL}/${payload.destination}/uploadVideo`;
     const formData = new FormData();
 
     formData.append("video", payload.chunk, payload.fileName);
@@ -53,9 +53,7 @@ export function provideChunkedUploadController() {
       } catch (error) {
         attempts++;
         if (attempts >= uploadConfig.retryLimit) {
-          throw new Error(
-            `Failed to upload chunk after ${uploadConfig.retryLimit} attempts: ${error}`,
-          );
+          throw new Error(`Failed to upload chunk: ${error}`);
         }
         await new Promise((resolve) => setTimeout(resolve, uploadConfig.retryDelay));
       }
@@ -90,13 +88,17 @@ export function provideChunkedUploadController() {
     }
 
     uploadController.cancel = cancel;
-    // Process uploads in batches to respect concurrency limit
-    for (let i = 0; i < uploadPromises.length; i += uploadConfig.concurrencyLimit) {
-      const batch = uploadPromises.slice(i, i + uploadConfig.concurrencyLimit);
-      await Promise.all(batch);
+    try {
+      for (let i = 0; i < uploadPromises.length; i += uploadConfig.concurrencyLimit) {
+        const batch = uploadPromises.slice(i, i + uploadConfig.concurrencyLimit);
+        await Promise.all(batch);
+      }
+    } catch (error) {
+      throw error; // Re-throw to handle it in the calling context
     }
+    // Process uploads in batches to respect concurrency limit
 
-    return await httpClient.httpPost(`${BASE_URL}/${destination}/uploadComplete`, {
+    return await httpClient.httpPost(`${BASE_URL}/${destination}/uploadVideoComplete`, {
       fileName: file.name,
       fileSize: file.size,
       mimetype: file.type,

@@ -85,10 +85,12 @@
             <ElButton :icon="RefreshLeft" plain type="primary" circle @click="row.task?.retry" />
             <ElButton :icon="Delete" plain type="danger" circle @click="removeFile(row)" />
           </div>
-          <div v-else-if="row.status === EUploadStatus.Error" class="btn-group">
+          <div v-else-if="row.status === EUploadStatus.Error" class="multi-line">
             <ElTag type="danger">{{ row.error || "Error" }}</ElTag>
-            <ElButton :icon="RefreshLeft" plain type="primary" circle @click="row.task?.retry" />
-            <ElButton :icon="Delete" plain type="danger" circle @click="removeFile(row)" />
+            <div class="btn-group">
+              <ElButton :icon="RefreshLeft" plain type="primary" circle @click="row.task?.retry" />
+              <ElButton :icon="Delete" plain type="danger" circle @click="removeFile(row)" />
+            </div>
           </div>
           <div v-else>
             <ElButton :icon="Download" plain type="primary" circle @click="downloadFile(row)" />
@@ -288,6 +290,13 @@ async function startUpload() {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .multi-line {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
     }
   }
 }
