@@ -62,10 +62,7 @@ const uploadImageStorage = multer.diskStorage({
   },
   filename: (_: Request, file, cb) => {
     const baseFileName = file.originalname.replace(/\s+/g, "");
-    const timestamp = Date.now();
-    // Create a unique filename with timestamp to avoid collisions
-    const fileName = `${timestamp}-${baseFileName}`;
-    cb(null, fileName);
+    cb(null, baseFileName);
   },
 });
 

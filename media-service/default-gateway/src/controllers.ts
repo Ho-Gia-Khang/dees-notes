@@ -118,6 +118,12 @@ export async function handleUploadImage(req: Request, res: Response) {
     type,
   });
 
+  fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
+    if (err) {
+      console.error("Error renaming file:", err);
+    }
+  });
+
   const response: IFileResponse = {
     id: savedFile.id,
     name: fileName,
@@ -287,7 +293,7 @@ export async function handleDeleteFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = getFilePath(file.name);
+  const filePath = getFilePath(fileId);
   fs.unlink(filePath, (err) => {
     if (err) {
       console.error("File deletion error:", err);
