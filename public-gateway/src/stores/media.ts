@@ -1,7 +1,7 @@
 import useMediaServiceApi from "@/api/mediaServiceApi";
 import type { IFile } from "@/types/document/file";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const useMediaStore = defineStore("media", () => {
   const mediaApi = useMediaServiceApi();
@@ -67,6 +67,8 @@ const useMediaStore = defineStore("media", () => {
       isWorking.value = false;
     }
   }
+
+  onMounted(getMediaList);
 
   return {
     state: {

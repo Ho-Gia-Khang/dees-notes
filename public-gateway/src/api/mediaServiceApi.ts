@@ -10,7 +10,7 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
   const { state } = useAuthStore();
 
   async function getMediaList(): Promise<any> {
-    return await httpClient.httpGet(BASE_MEDIA_URL);
+    return await httpClient.httpGet(`${BASE_MEDIA_URL}/${state.userId}`);
   }
 
   async function goToPlayer(): Promise<any> {
@@ -18,7 +18,7 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
   }
 
   async function deleteFile(fileId: string): Promise<void> {
-    const url = `${BASE_MEDIA_URL}/${fileId}?userId=${state.userId}`;
+    const url = `${BASE_MEDIA_URL}/delete/${fileId}?userId=${state.userId}`;
     return await httpClient.httpDelete(url);
   }
 

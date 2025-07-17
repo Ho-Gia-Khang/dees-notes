@@ -8,7 +8,7 @@
     <FileUploader
       :allowed-file-types="ALLOWED_FILE_TYPES"
       :batch-size="BATCH_SIZE"
-      :loaded-files="parsedDocumentsList"
+      :loaded-files="parsedMediaList"
       :loading="isUploading || state.isWorking"
       v-model="fileIntermediates"
       @upload="startUpload"
@@ -18,26 +18,28 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ALLOWED_FILE_TYPES } from "../constants";
+import { ALLOWED_FILE_TYPES, IMAGES_FILE_TYPES } from "../constants";
 
-import useMediaStore from "@/stores/media";
 import FileUploader from "@/components/shared/file-uploader.vue";
+import useMediaStore from "@/stores/media";
 import {
   EUploadStatus,
   type IFileIntermediate,
   type IUploadController,
 } from "@/types/shared/fileUpload";
 
-import { computed, nextTick, ref } from "vue";
 import { provideChunkedUploadController } from "@/api/chunkedUploadController";
+import { provideUploadController } from "@/api/uploadController";
 import type { IFile } from "@/types/document/file";
+import { computed, nextTick, ref } from "vue";
 
 const BATCH_SIZE = 3;
 
 const { state, deleteFile, downloadFile } = useMediaStore();
 const fileIntermediates = ref<IFileIntermediate[]>([]);
 
-const uploadResource = provideChunkedUploadController();
+const videoUploadResource = provideChunkedUploadController();
+const imageUploadResource = provideUploadController();
 
 const isUploading = computed(() =>
   fileIntermediates.value.some((file) => file.status === EUploadStatus.Uploading),
@@ -88,6 +90,11 @@ async function handleFileUpload(file: IFileIntermediate) {
   const uploadController: IUploadController = {
     cancel: undefined,
   };
+  let uploadResource = videoUploadResource;
+  console.log(" fileExtension:", file.type);
+  if (IMAGES_FILE_TYPES.includes(file.type)) {
+    uploadResource = imageUploadResource;
+  }
 
   return new Promise<void>((resolve, reject) => {
     uploadResource.value
@@ -132,7 +139,7 @@ async function handleFileUpload(file: IFileIntermediate) {
   });
 }
 
-const parsedDocumentsList = computed<IFileIntermediate[]>(() =>
+const parsedMediaList = computed<IFileIntermediate[]>(() =>
   (state.mediaList ?? []).map<IFileIntermediate>((doc) => ({
     id: doc.id,
     name: doc.name,
