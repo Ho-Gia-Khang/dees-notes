@@ -51,7 +51,7 @@ export async function renewSessionHandler(req: Request, res: Response) {
     return;
   }
 
-  const tokensPairs = await reIssueTokens({ refreshToken });
+  const newTokens = await reIssueTokens({ refreshToken });
 
   const userId = res.locals.user.id;
 
@@ -60,19 +60,13 @@ export async function renewSessionHandler(req: Request, res: Response) {
     return;
   }
 
-  const sessions = await updateSession({ query: userId, update: false });
-  if (sessions) {
-    await deleteSessions({ userId: userId, valid: false });
-  }
-
-  const newSession = await createSession({ userId: userId });
-
-  if (tokensPairs) {
+  if (newTokens) {
     res.status(EHttpStatusCode.OK).send({
-      accessToken: tokensPairs.accessToken,
-      refreshToken: tokensPairs.refreshToken,
-      sessionId: newSession.id,
+      accessToken: newTokens.tokenPairs.accessToken,
+      refreshToken: newTokens.tokenPairs.refreshToken,
+      sessionId: newTokens.sessionId,
     });
+    return;
   }
 
   res

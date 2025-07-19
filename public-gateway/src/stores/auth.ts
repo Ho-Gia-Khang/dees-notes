@@ -153,12 +153,15 @@ const useAuthStore = defineStore("authStore", () => {
   onMounted(async () => {
     await startUp();
     await delayMs(500);
+    const renewTokenInterval = RENEW_TOKEN_INTERVAL * 1000; // convert to milliseconds
 
     if (isAuthenticated.value) {
       intervalId = setInterval(async () => {
         const accessToken = jwtDecode(session.value.accessToken);
+        const currentTimeStamp = Date.now();
+        const expirationTime = currentTimeStamp + renewTokenInterval;
 
-        if (!accessToken.exp || accessToken.exp * 1000 < RENEW_TOKEN_INTERVAL) {
+        if (!accessToken.exp || accessToken.exp * 1000 < expirationTime) {
           await renewTokenSilent();
         }
       }, LOGIN_SILENT_INTERVAL);

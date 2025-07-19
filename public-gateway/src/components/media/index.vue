@@ -15,11 +15,11 @@ const serviceItems: INavItem[] = [
     icon: "player",
   },
   {
-    label: "Upload",
-    to: "/media/upload",
+    label: "Library",
+    to: "/media/library",
     description: "Upload and manage media files.",
     level: ENavLevel.LEVEL_2,
-    icon: "upload",
+    icon: "library",
   },
 ];
 </script>

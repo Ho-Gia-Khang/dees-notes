@@ -73,7 +73,7 @@ export async function reIssueTokens({
 
   // delete the old session
   await deleteSession({ id: session.id });
-  return tokenPairs;
+  return { tokenPairs, sessionId: newSession.id };
 }
 
 export async function deleteSessions({

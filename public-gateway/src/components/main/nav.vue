@@ -79,10 +79,10 @@ const NAV_ITEMS: INavItem[] = [
         icon: "player",
       },
       {
-        label: "Upload",
+        label: "Library",
         to: "/media/upload",
         level: ENavLevel.LEVEL_2,
-        icon: "upload",
+        icon: "library",
       },
     ],
   },
@@ -132,7 +132,7 @@ $text-color: #606266;
   display: grid;
   grid-template-rows: min-content 1fr;
   grid-template-columns: min-content min-content;
-  max-height: 100%;
+  height: 100%;
 
   a {
     text-decoration: none;
@@ -154,10 +154,11 @@ $text-color: #606266;
   .nav-item-wrapper {
     display: flex;
     flex-direction: column;
-    height: 95%;
+    height: 100%;
+    box-sizing: border-box;
     gap: 8px;
     padding: 12px;
-    width: 150px;
+    width: 180px;
     position: relative;
     transition: all 0.3s ease-in-out;
 
@@ -211,7 +212,7 @@ $text-color: #606266;
   }
 
   .nav-inactive {
-    width: 48px;
+    width: 72px;
   }
 }
 </style>
