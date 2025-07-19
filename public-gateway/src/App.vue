@@ -1,7 +1,7 @@
 <template>
   <div v-if="state.isAuthenticated" class="main-layout">
     <Nav />
-    <div>
+    <div class="main-layout-content">
       <Header />
       <main class="main-content">
         <RouterView />
@@ -25,13 +25,29 @@ const { state } = useAuthStore();
 .main-layout {
   padding: 1.5%;
   display: grid;
-  height: 96%;
+  height: 100%;
   grid-template-columns: min-content 1fr;
   overflow: auto;
+  box-sizing: border-box;
 
-  .main-content {
-    padding: $header-padding 0 0 $header-padding;
-    height: 90%;
+  .main-layout-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+
+    .main-content {
+      box-sizing: border-box;
+      padding: $header-padding 0 0 $header-padding;
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+
+      * {
+        box-sizing: border-box;
+      }
+    }
   }
 }
 </style>

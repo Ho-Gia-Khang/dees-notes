@@ -3,7 +3,7 @@ import IndexView from "../views/IndexView.vue";
 import LoginView from "@/views/authView/login.vue";
 import MediaView from "@/views/mediaView/index.vue";
 import MediaPlayer from "@/views/mediaView/player.vue";
-import MediaUploader from "@/views/mediaView/uploader.vue";
+import MediaLibrary from "@/views/mediaView/library.vue";
 import DocumentView from "@/views/documentView/index.vue";
 import DocumentLibrary from "@/views/documentView/library.vue";
 import DocumentEditor from "@/views/documentView/editor.vue";
@@ -44,9 +44,9 @@ const router = createRouter({
           component: MediaPlayer,
         },
         {
-          path: "upload",
-          name: "upload",
-          component: MediaUploader,
+          path: "library",
+          name: "library",
+          component: MediaLibrary,
         },
       ],
     },

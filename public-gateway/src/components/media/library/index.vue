@@ -1,7 +1,7 @@
 <template>
-  <div class="media_uploader">
-    <div class="media_uploader_header">
-      <h2>Media uploader</h2>
+  <div class="media_library">
+    <div class="media_library_header">
+      <h2>Media library</h2>
       <p class="title-description">Your private media library</p>
     </div>
 
@@ -165,7 +165,7 @@ async function onDownloadFile(event: { fileId: string; fileName: string }) {
 <style scoped lang="scss">
 @use "@/assets/shared.scss";
 
-.media_uploader {
+.media_library {
   display: flex;
   flex-direction: column;
   padding: 0 10px;

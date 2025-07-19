@@ -5,6 +5,12 @@ export interface IDashboardContext {
   state: {
     dashboard: Ref<any | null>;
     isWorking: Ref<boolean>;
+    videoCount: Ref<number>;
+    imageCount: Ref<number>;
+    documentCount: Ref<number>;
+    totalStorage: Ref<number>; // Optional, if storage data is included
+    usedStorage: Ref<number>; // Optional, if storage data is included
+    freeStorage: Ref<number>; // Optional, if storage data is included
   };
   getDashboard: () => Promise<any>;
 }
@@ -20,6 +26,12 @@ export function provideDashboard() {
 
   const dashboard = ref<any>(null);
   const isWorking = ref<boolean>(false);
+  const videoCount = ref<number>(1);
+  const imageCount = ref<number>(1);
+  const documentCount = ref<number>(1);
+  const totalStorage = ref<number>(256); // Example total storage in GB
+  const usedStorage = ref<number>(0.93); // Example used storage in GB
+  const freeStorage = ref<number>(255.07); // Example free storage in GB
 
   async function getDashboard() {
     try {
@@ -37,6 +49,12 @@ export function provideDashboard() {
     state: {
       dashboard,
       isWorking,
+      videoCount,
+      imageCount,
+      documentCount,
+      totalStorage,
+      usedStorage,
+      freeStorage,
     },
     getDashboard,
   };
