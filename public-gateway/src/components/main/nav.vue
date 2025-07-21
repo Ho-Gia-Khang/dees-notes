@@ -80,7 +80,7 @@ const NAV_ITEMS: INavItem[] = [
       },
       {
         label: "Library",
-        to: "/media/upload",
+        to: "/media/library",
         level: ENavLevel.LEVEL_2,
         icon: "library",
       },

@@ -45,7 +45,7 @@ const router = createRouter({
         },
         {
           path: "library",
-          name: "library",
+          name: "media-library",
           component: MediaLibrary,
         },
       ],
@@ -57,7 +57,7 @@ const router = createRouter({
       children: [
         {
           path: "library",
-          name: "library",
+          name: "document-library",
           component: DocumentLibrary,
         },
         {
