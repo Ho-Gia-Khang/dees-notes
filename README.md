@@ -6,7 +6,7 @@
 
 3. Configure the DNS record to match the requirements from Cloudflare to avoid suspension after 15 days by Cloudflare (The instruction is based on your DNS provider, please follow the instruction from Cloudflare).
 
-4. Configure a sub domain to serve as the API endpoint default gateway. Create a new record in the current DNS record, with th type `CNAME`, the alias (or the name) will be `api` and the target is the current domain name.
+4. Configure a sub domain to serve as the API endpoint default gateway. Create a new record in the current DNS record, with th type `CNAME`, the alias (or the name) will be `api` and the target is the current domain name. This will create a subdomain `api.` + your domain name.
 
 # Basic setup
 
@@ -16,7 +16,7 @@
 
    1.1. Go to your DNS record and find 'API Token' section.
 
-   1.2. Create a token using 'Edit DNS' template (not the public API token. Also, existing tokens cannot be used, it must be a new token)
+   1.2. Create a token using 'Edit DNS' template (not the public API token. Also, existing tokens cannot be used, it must be a new token).
 
    1.3. Grand the edit permission to that token if you use other templates. Include all DNS zones as well.
 
@@ -26,11 +26,11 @@
 
 3. Filled the information required for Cloudflare - the email and API Key (the one you got from creating a new API Token, not the public key).
 
-4. Ensure to not public that file by ignoring it in `.gitignore` and any other publishing way
+4. Ensure to not public that file by ignoring it in `.gitignore` and any other publishing way.
 
 ## 2. Deploy services locally
 
-1. Install Docker and optionally a docker containers manager app (Docker desktop or Portainer is recommended)
+1. Install Docker and optionally a docker containers manager app (Docker desktop or Portainer is recommended).
 
 2. Build the containers:
 
@@ -48,9 +48,9 @@ docker compose up -d
 
 ## 3. Configure Reverse Proxy
 
-1. Access the admin web of the `app` container (by default it is accessible via port 81)
+1. Access the admin web of the `app` container (by default it is accessible via port 81).
 
-2. Login to NGINX. The default account is
+2. Login to NGINX. The default account is.
 
 ```
 admin@example.com
