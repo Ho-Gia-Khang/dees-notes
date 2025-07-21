@@ -6,7 +6,7 @@
 
 3. Configure the DNS record to match the requirements from Cloudflare to avoid suspension after 15 days by Cloudflare (The instruction is based on your DNS provider, please follow the instruction from Cloudflare).
 
-4. Configure a sub domain to serve as the API endpoint default gateway. Create a new record in the current DNS record, with the `CNAME`, the alia (or the name) will be `api` and the target is the current domain name.
+4. Configure a sub domain to serve as the API endpoint default gateway. Create a new record in the current DNS record, with th type `CNAME`, the alias (or the name) will be `api` and the target is the current domain name.
 
 # Basic setup
 
