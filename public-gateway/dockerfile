@@ -3,7 +3,7 @@ FROM node:23-slim AS build
 WORKDIR /src
 
 ENV PORT=5173 \
-    VITE_APP_BASE_URL=http://localhost:3000 \
+    VITE_APP_BASE_URL=https://api.deesnotes.cloud \
     VITE_APP_TITLE="Dees Notes" 
 
 COPY . .

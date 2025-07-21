@@ -6,6 +6,8 @@
 
 3. Configure the DNS record to match the requirements from Cloudflare to avoid suspension after 15 days by Cloudflare (The instruction is based on your DNS provider, please follow the instruction from Cloudflare).
 
+4. Configure a sub domain to serve as the API endpoint default gateway. Create a new record in the current DNS record, with the `CNAME`, the alia (or the name) will be `api` and the target is the current domain name.
+
 # Basic setup
 
 ## 1. DDNS setup
@@ -70,11 +72,13 @@ changeme
 
    4.2. Go to 'Proxy Host' section and add a proxy host.
 
-   4.3. Forward the request to the port of `public-gateway` service (the default port is 4300) by filling the local ip address of your device `http://your.local.ip.address` and the port number. Use HTTP protocol.
+   4.3. Enter your domain name in the field domain name. Forward the request to the port of `public-gateway` service (the default port is 4300) by filling the local ip address of your device `http://your.local.ip.address` and the port number. Use HTTP protocol.
 
    4.4. Turn on Block common exploit. Navigate to 'SSL' tab, select the SSL certificate your have created earlier (it has the name of your domain name) and turn on 'force SSL'.
 
-   4.5. Go back to your DNS record in Cloudflare, find the SSL/TLS section, configure SSL/TLS Certificate to be full or full-strict (either of them should work), and turn on 'Always use HTTPS'
+   4.5. Go back to your DNS record in Cloudflare, find the SSL/TLS section, configure SSL/TLS Certificate to be full or full-strict (either of them should work), and turn on 'Always use HTTPS'.
+
+   4.6. Create proxy host with the domain name is `api.` plus your domain name and forward it to the port of the default gateway. The rest for the configuration is the same as the proxy host above.
 
 ## 4. Setup local firewall
 
