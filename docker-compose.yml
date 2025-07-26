@@ -35,7 +35,7 @@ services:
   default-gateway:
     container_name: default-gateway
     build:
-      context: ./default-gateway
+      context: ./server/default-gateway
       dockerfile: dockerfile
     environment:
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
@@ -88,12 +88,12 @@ services:
   # media gateway - the gateway for public gateway to access media service:
   media:
     build:
-      context: ./media-service
+      context: ./server/media-service
       dockerfile: dockerfile
     container_name: media
     volumes:
-      - ./media-service/default-gateway/assets:/assets:rw
-      - ./media-service/default-gateway/chunks:/chunks:rw
+      - ./server/media-service/default-gateway/assets:/assets:rw
+      - ./server/media-service/default-gateway/chunks:/chunks:rw
     networks:
       - public_net
   # jellyfin - the media server
@@ -107,13 +107,13 @@ services:
       - "8096:8096" # HTTP Port
 
     volumes:
-      - ./media-service/jellyfin/config:/config
-      - ./media-service/jellyfin/cache:/cache
+      - ./server/media-service/jellyfin/config:/config
+      - ./server/media-service/jellyfin/cache:/cache
       - type: bind
-        source: ./media-service/jellyfin/media
+        source: ./server/media-service/jellyfin/media
         target: /media
       - type: bind
-        source: ./media-service/jellyfin/media2
+        source: ./server/media-service/jellyfin/media2
         target: /media2
         read_only: true
     restart: unless-stopped
@@ -123,11 +123,11 @@ services:
   # Document service
   document:
     build:
-      context: ./document-service
+      context: .server/document-service
       dockerfile: dockerfile
     container_name: document
     volumes:
-      - ./document-service/default-gateway/assets:/assets
+      - ./server/document-service/default-gateway/assets:/assets
     networks:
       - public_net
 
