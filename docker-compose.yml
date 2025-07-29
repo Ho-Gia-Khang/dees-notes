@@ -4,12 +4,12 @@ services:
     image: postgres:latest
     container_name: postgres
     environment:
-      POSTGRES_MULTIPLE_DATABASES: auth,document,media
+      POSTGRES_MULTIPLE_DATABASES: auth,deesnotes
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: prisma
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./postgres-multiple-databases:/docker-entrypoint-initdb.d
+      - ./postgres-multiple-databases:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
     networks:
@@ -23,7 +23,7 @@ services:
   public-gateway:
     container_name: public-gateway
     build:
-      context: ./public-gateway
+      context: ./server/public-gateway
       dockerfile: dockerfile
     ports:
       - "4300:5173"
@@ -123,7 +123,7 @@ services:
   # Document service
   document:
     build:
-      context: .server/document-service
+      context: ./server/document-service
       dockerfile: dockerfile
     container_name: document
     volumes:

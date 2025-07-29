@@ -1,16 +1,9 @@
-import { IFileInput } from "../models";
-import prisma from "./client";
+import { fileOperations, IFileInput } from "@dees-notes/shared-module";
 
 export async function getAllFiles(userId: string) {
   try {
-    return await prisma.file.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        uploadedAt: "desc",
-      },
-    });
+    // Using the fileOperations from shared module
+    return await fileOperations.findByUserId(userId);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error fetching files");
@@ -19,11 +12,8 @@ export async function getAllFiles(userId: string) {
 
 export async function getFileById(fileId: string) {
   try {
-    return await prisma.file.findUnique({
-      where: {
-        id: fileId,
-      },
-    });
+    // Using the fileOperations from shared module
+    return await fileOperations.findById(fileId);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error fetching file");
@@ -32,10 +22,10 @@ export async function getFileById(fileId: string) {
 
 export async function saveFile(newFile: IFileInput) {
   try {
-    const file = await prisma.file.create({
-      data: newFile,
-    });
-    return file;
+    // Using the fileOperations from shared module
+    // Use type assertion to bypass TypeScript checking
+    // Since uploadedAt has a default value in Prisma schema
+    return await fileOperations.create(newFile);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error saving file");
@@ -44,11 +34,8 @@ export async function saveFile(newFile: IFileInput) {
 
 export async function deleteFile(fileId: string) {
   try {
-    await prisma.file.delete({
-      where: {
-        id: fileId,
-      },
-    });
+    // Using the fileOperations from shared module
+    await fileOperations.delete(fileId);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error deleting file");

@@ -3,14 +3,9 @@ import fs from "fs-extra";
 import path from "path";
 
 import { uploadPath, uploadPathChunks } from "./constants";
-import { IFileResponse } from "./models";
-import {
-  deleteFile,
-  getAllFiles,
-  getFileById,
-  saveFile,
-} from "./services/services";
+import { deleteFile, getAllFiles, getFileById, saveFile } from "./services";
 import { delay } from "./utils";
+import { IFileResponse } from "@dees-notes/shared-module";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 1000; // 1 second
@@ -129,7 +124,7 @@ export async function handleUploadImage(req: Request, res: Response) {
     name: fileName,
     size: fileSize,
     type,
-    uploadedAt: savedFile.uploadedAt.toISOString(),
+    uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
   };
 
@@ -227,7 +222,7 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
     name: fileName,
     size: fileSize,
     type,
-    uploadedAt: savedFile.uploadedAt.toISOString(),
+    uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
   };
 
