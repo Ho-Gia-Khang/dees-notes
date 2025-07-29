@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@dees-notes/shared-module": "file:../../shared-module",
     "@prisma/client": "^6.11.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
