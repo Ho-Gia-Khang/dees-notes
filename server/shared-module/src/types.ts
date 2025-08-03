@@ -4,16 +4,13 @@
 
 export * from "./models";
 
-// Common response structure
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code?: string;
-    details?: any;
-  };
-}
+/**
+ * API Error interface, in object form, with the key is the field that get error, and the value is the error content
+ */
+export type IApiError = {
+  message: Record<string, string>;
+  code?: string;
+};
 
 // Pagination types
 export interface PaginationParams {
@@ -21,14 +18,10 @@ export interface PaginationParams {
   pageSize?: number;
 }
 
-export interface PaginatedResponse<T> extends ApiResponse {
-  data: {
-    items: T[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  error?: IApiError;
 }
 
 // Common user types

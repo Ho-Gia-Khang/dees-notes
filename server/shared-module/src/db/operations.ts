@@ -1,19 +1,22 @@
-import { prisma } from './client';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { PaginationParams, PaginatedResponse } from '../types';
+import { prisma } from "./client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { PaginationParams, PaginatedResponse } from "../types";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 
 // Type for model keys in PrismaClient
-type PrismaModels = keyof Omit<PrismaClient, 
-  | '$connect' 
-  | '$disconnect' 
-  | '$on' 
-  | '$transaction' 
-  | '$use' 
-  | '$extends'
-  | '$queryRaw'
-  | '$executeRaw'
-  | '$queryRawUnsafe'
-  | '$executeRawUnsafe'>;
+type PrismaModels = keyof Omit<
+  PrismaClient,
+  | "$connect"
+  | "$disconnect"
+  | "$on"
+  | "$transaction"
+  | "$use"
+  | "$extends"
+  | "$queryRaw"
+  | "$executeRaw"
+  | "$queryRawUnsafe"
+  | "$executeRawUnsafe"
+>;
 
 // Generic type for database operations
 type ModelName = Prisma.ModelName;
@@ -59,12 +62,14 @@ export class DatabaseOperations<T extends Record<string, any>> {
    * @param options Query options
    * @returns Array of records
    */
-  async findMany(options: {
-    where?: Record<string, any>;
-    skip?: number;
-    take?: number;
-    orderBy?: Record<string, 'asc' | 'desc'>;
-  } = {}): Promise<T[]> {
+  async findMany(
+    options: {
+      where?: Record<string, any>;
+      skip?: number;
+      take?: number;
+      orderBy?: Record<string, "asc" | "desc">;
+    } = {}
+  ): Promise<T[]> {
     const { where, skip, take, orderBy } = options;
 
     return this.model.findMany({
@@ -81,7 +86,7 @@ export class DatabaseOperations<T extends Record<string, any>> {
    * @param data The data to update
    * @returns The updated record
    */
-  async update(id: string, data: Partial<Omit<T, 'id'>>): Promise<T> {
+  async update(id: string, data: Partial<Omit<T, "id">>): Promise<T> {
     return this.model.update({
       where: { id },
       data,
@@ -118,33 +123,25 @@ export class DatabaseOperations<T extends Record<string, any>> {
   async findPaginated(
     pagination: PaginationParams = {},
     where: Record<string, any> = {},
-    orderBy: Record<string, 'asc' | 'desc'> = {}
+    orderBy: Record<string, "asc" | "desc"> = {}
   ): Promise<PaginatedResponse<T>> {
-    const page = pagination.page || 1;
-    const pageSize = pagination.pageSize || 10;
-    const skip = (page - 1) * pageSize;
-    
+    const page = pagination.page || DEFAULT_PAGE;
+    const pageSize = pagination.pageSize || DEFAULT_PAGE_SIZE;
+    const skip = page * pageSize;
+
     const [items, total] = await Promise.all([
       this.findMany({
         where,
         skip,
         take: pageSize,
-        orderBy
+        orderBy,
       }),
-      this.count(where)
+      this.count(where),
     ]);
-    
-    const totalPages = Math.ceil(total / pageSize);
-    
+
     return {
-      success: true,
-      data: {
-        items,
-        total,
-        page,
-        limit: pageSize,
-        totalPages
-      }
+      items,
+      total,
     };
   }
 }

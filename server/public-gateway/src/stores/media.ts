@@ -1,5 +1,7 @@
 import useMediaServiceApi from "@/api/mediaServiceApi";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants";
 import type { IFile } from "@/types/document/file";
+import type { ApiListRequest } from "@/types/shared/common";
 import { defineStore } from "pinia";
 import { onMounted, ref } from "vue";
 
@@ -8,10 +10,16 @@ const useMediaStore = defineStore("media", () => {
 
   const mediaList = ref<IFile[]>([]);
   const isWorking = ref(false);
+  const query = ref<ApiListRequest>({
+    page: DEFAULT_PAGE,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
+  const total = ref(0);
 
   async function getMediaListIntermediate() {
-    const response = await mediaApi.getMediaList();
+    const response = await mediaApi.getMediaList(query.value);
     mediaList.value = response.items;
+    total.value = response.total;
   }
 
   async function getMediaList() {
@@ -74,6 +82,8 @@ const useMediaStore = defineStore("media", () => {
     state: {
       mediaList,
       isWorking,
+      total,
+      query,
     },
     getMediaList,
     goToPlayer,
