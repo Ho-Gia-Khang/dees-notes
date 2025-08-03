@@ -1,14 +1,27 @@
-import { IFileInput } from "../models";
-import prisma from "./client";
+import {
+  EFileType,
+  fileOperations,
+  IFileInput,
+} from "@dees-notes/shared-module";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from "@dees-notes/shared-module/dist/constants";
 
-export async function getAllFiles(userId: string) {
+export async function getAllFiles(
+  userId: string,
+  page: number = DEFAULT_PAGE,
+  pageSize: number = DEFAULT_PAGE_SIZE
+) {
   try {
-    return await prisma.file.findMany({
+    return fileOperations.findPaginated({
       where: {
-        userId: userId,
+        userId,
+        type: EFileType.DOCUMENT,
       },
-      orderBy: {
-        uploadedAt: "desc",
+      pagination: {
+        page,
+        pageSize,
       },
     });
   } catch (err: any) {
@@ -19,11 +32,7 @@ export async function getAllFiles(userId: string) {
 
 export async function getFileById(fileId: string) {
   try {
-    return await prisma.file.findUnique({
-      where: {
-        id: fileId,
-      },
-    });
+    return await fileOperations.findById(fileId);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error fetching file");
@@ -32,9 +41,7 @@ export async function getFileById(fileId: string) {
 
 export async function saveFile(newFile: IFileInput) {
   try {
-    const file = await prisma.file.create({
-      data: newFile,
-    });
+    const file = await fileOperations.create(newFile);
     return file;
   } catch (err: any) {
     console.error(err);
@@ -44,11 +51,7 @@ export async function saveFile(newFile: IFileInput) {
 
 export async function deleteFile(fileId: string) {
   try {
-    await prisma.file.delete({
-      where: {
-        id: fileId,
-      },
-    });
+    await fileOperations.delete(fileId);
   } catch (err: any) {
     console.error(err);
     throw new Error("Error deleting file");

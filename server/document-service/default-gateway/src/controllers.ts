@@ -3,13 +3,17 @@ import { UploadedFile } from "express-fileupload/index";
 import path from "path";
 import fs from "fs-extra";
 
-import { IFileResponse } from "./models";
+import { deleteFile, getAllFiles, getFileById, saveFile } from "./services";
 import {
-  deleteFile,
-  getAllFiles,
-  getFileById,
-  saveFile,
-} from "./services/services";
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from "@dees-notes/shared-module/dist/constants";
+import {
+  IApiError,
+  IFileResponse,
+  PaginatedResponse,
+} from "@dees-notes/shared-module/dist/types";
+import { EFileType } from "@dees-notes/shared-module";
 
 const uploadPath = path.join(__dirname, "../assets");
 
@@ -27,12 +31,26 @@ export async function getDocumentsList(req: Request, res: Response) {
     return;
   }
 
-  const items = await getAllFiles(userId);
-  const totals = items.length;
-  res.status(200).send({
-    items,
-    totals,
-  });
+  const page = Number(req.query?.page) || DEFAULT_PAGE;
+  const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
+
+  try {
+    const queriedData = await getAllFiles(userId, page, pageSize);
+
+    const response: PaginatedResponse<IFileResponse> = {
+      items: queriedData.items,
+      total: queriedData.total,
+    };
+    res.status(200).send(response);
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    const errorMsg: IApiError = {
+      message: {
+        Fetching_files: error as string,
+      },
+    };
+    res.status(500).send(errorMsg);
+  }
 }
 
 export async function handleUpload(req: Request, res: Response) {
@@ -56,17 +74,18 @@ export async function handleUpload(req: Request, res: Response) {
   }
 
   const file = files[Object.keys(files)[0]] as UploadedFile;
-  const type = file.mimetype.split("/")[1];
+  const extension = file.mimetype.split("/")[1];
 
   const savedFile = await saveFile({
     userId,
     name: file.name,
     uploadedBy: userName,
     size: file.size,
-    type,
+    extension,
+    type: EFileType.DOCUMENT,
   });
 
-  const filePath = await getFilePath(savedFile.id, type);
+  const filePath = await getFilePath(savedFile.id, extension);
   file.mv(filePath, (err) => {
     if (err) {
       console.error("File upload error:", err);
@@ -79,7 +98,8 @@ export async function handleUpload(req: Request, res: Response) {
     id: savedFile.id,
     name: file.name,
     size: file.size,
-    type,
+    type: EFileType.DOCUMENT,
+    extension,
     uploadedAt: savedFile.uploadedAt.toISOString(),
     uploadedBy: savedFile.uploadedBy,
   };

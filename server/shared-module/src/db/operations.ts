@@ -120,11 +120,15 @@ export class DatabaseOperations<T extends Record<string, any>> {
    * @param orderBy Sorting options
    * @returns Paginated response
    */
-  async findPaginated(
-    pagination: PaginationParams = {},
-    where: Record<string, any> = {},
-    orderBy: Record<string, "asc" | "desc"> = {}
-  ): Promise<PaginatedResponse<T>> {
+  async findPaginated({
+    where,
+    pagination = {},
+    orderBy = {},
+  }: {
+    where: Record<string, any>;
+    pagination?: PaginationParams;
+    orderBy?: Record<string, "asc" | "desc">;
+  }): Promise<PaginatedResponse<T>> {
     const page = pagination.page || DEFAULT_PAGE;
     const pageSize = pagination.pageSize || DEFAULT_PAGE_SIZE;
     const skip = page * pageSize;

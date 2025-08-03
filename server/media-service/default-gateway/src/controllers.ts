@@ -36,12 +36,11 @@ export async function getFilesList(req: Request, res: Response) {
   const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
 
   try {
-    const items = await getAllFiles(userId, page, pageSize);
-    const total = items.length;
+    const queriedData = await getAllFiles(userId, page, pageSize);
 
     const response: PaginatedResponse<IFileResponse> = {
-      items,
-      total,
+      items: queriedData.items,
+      total: queriedData.total,
     };
     res.status(200).send(response);
   } catch (error) {
