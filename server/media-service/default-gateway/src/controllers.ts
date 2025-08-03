@@ -9,7 +9,9 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
   EFileType,
+  IApiError,
   IFileResponse,
+  PaginatedResponse,
 } from "@dees-notes/shared-module";
 
 const MAX_RETRIES = 5;
@@ -33,12 +35,24 @@ export async function getFilesList(req: Request, res: Response) {
   const page = Number(req.query?.page) || DEFAULT_PAGE;
   const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
 
-  const items = await getAllFiles(userId, page, pageSize);
-  const totals = items.length;
-  res.status(200).send({
-    items,
-    totals,
-  });
+  try {
+    const items = await getAllFiles(userId, page, pageSize);
+    const total = items.length;
+
+    const response: PaginatedResponse<IFileResponse> = {
+      items,
+      total,
+    };
+    res.status(200).send(response);
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    const errorMsg: IApiError = {
+      message: {
+        Fetching_files: error as string,
+      },
+    };
+    res.status(500).send(errorMsg);
+  }
 }
 
 async function mergeChunks(fileName: string, totalChunks: number) {

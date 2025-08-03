@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import useHttpClient from "./httpClient";
 import useAuthStore from "@/stores/auth";
+import type { ApiListRequest } from "@/types/shared/common";
+import { buildSearchParams } from "@/utils";
 
 const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
@@ -9,8 +11,9 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
   const httpClient = useHttpClient();
   const { state } = useAuthStore();
 
-  async function getMediaList(): Promise<any> {
-    return await httpClient.httpGet(`${BASE_MEDIA_URL}/${state.userId}`);
+  async function getMediaList(query: ApiListRequest): Promise<any> {
+    const params = buildSearchParams(query);
+    return await httpClient.httpGet(`${BASE_MEDIA_URL}/${state.userId}?${params?.toString()}`);
   }
 
   async function goToPlayer(): Promise<any> {

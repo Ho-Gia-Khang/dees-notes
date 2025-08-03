@@ -145,10 +145,11 @@ $text-color: #606266;
   .home-nav-item {
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: $header-padding;
     gap: 8px;
     font-size: 26px;
     grid-column: span 2;
+    height: $header-height + 2;
   }
 
   .nav-item-wrapper {

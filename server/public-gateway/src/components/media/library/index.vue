@@ -15,12 +15,15 @@
       @delete="onDeleteFile"
       @download="onDownloadFile"
     />
+
+    <Paginator v-model="state.query" :total="state.total" :disabled="state.isWorking" />
   </div>
 </template>
 <script setup lang="ts">
 import { ALLOWED_FILE_TYPES, IMAGES_FILE_TYPES } from "../constants";
 
 import FileUploader from "@/components/shared/file-uploader.vue";
+import Paginator from "@/components/shared/paginator.vue";
 import useMediaStore from "@/stores/media";
 import {
   EUploadStatus,
@@ -31,11 +34,11 @@ import {
 import { provideChunkedUploadController } from "@/api/chunkedUploadController";
 import { provideUploadController } from "@/api/uploadController";
 import type { IFile } from "@/types/document/file";
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 
 const BATCH_SIZE = 3;
 
-const { state, deleteFile, downloadFile } = useMediaStore();
+const { state, deleteFile, downloadFile, getMediaList } = useMediaStore();
 const fileIntermediates = ref<IFileIntermediate[]>([]);
 
 const videoUploadResource = provideChunkedUploadController();
@@ -160,15 +163,20 @@ async function onDownloadFile(event: { fileId: string; fileName: string }) {
 
   await downloadFile(event.fileId, event.fileName);
 }
+
+watch(state.query, () => {
+  getMediaList();
+});
 </script>
 
 <style scoped lang="scss">
 @use "@/assets/shared.scss";
 
 .media_library {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: min-content 1fr min-content;
   padding: 0 10px;
+  height: 100%;
 
   &-header {
     display: flex;
