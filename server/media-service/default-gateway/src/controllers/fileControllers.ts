@@ -2,9 +2,14 @@ import { Request, Response } from "express";
 import fs from "fs-extra";
 import path from "path";
 
-import { uploadPath, uploadPathChunks } from "./constants";
-import { deleteFile, getAllFiles, getFileById, saveFile } from "./services";
-import { delay } from "./utils";
+import { uploadPath, uploadPathChunks } from "../constants";
+import {
+  deleteFile,
+  getAllFiles,
+  getFileById,
+  saveFile,
+} from "../services/fileServices";
+import { delay, normalizeFileName } from "../utils";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -25,10 +30,26 @@ function getFileTempPath(fileName: string, part: number): string {
   return path.join(uploadPathChunks, `${fileName}.part_${part}`);
 }
 
-export async function getFilesList(req: Request, res: Response) {
-  const userId = req.params?.userId as string;
+export async function getFilesListHandler(req: Request, res: Response) {
+  const userId = req.query?.userId as string;
   if (!userId) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
+    return;
+  }
+
+  const folderId = req.params?.folderId as string;
+  if (!folderId) {
+    const errMsg: IApiError = {
+      message: {
+        folderId: "Folder ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
@@ -36,7 +57,7 @@ export async function getFilesList(req: Request, res: Response) {
   const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
 
   try {
-    const queriedData = await getAllFiles(userId, page, pageSize);
+    const queriedData = await getAllFiles(userId, folderId, page, pageSize);
 
     const response: PaginatedResponse<IFileResponse> = {
       items: queriedData.items,
@@ -101,23 +122,54 @@ async function mergeChunks(fileName: string, totalChunks: number) {
 export async function handleUploadImage(req: Request, res: Response) {
   const userId = req.body.userId as string;
   if (!userId) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
   const userName = req.body.userName as string;
   if (!userName) {
-    res.status(400).send({ message: "User name is required." });
+    const errMsg: IApiError = {
+      message: {
+        userName: "User name is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   if (!req.file) {
-    res.status(400).send({ message: "No image file uploaded." });
+    const errMsg: IApiError = {
+      message: {
+        file: "No image file uploaded.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
-  const fileName = req.body.originalname as string;
+  const fileName = normalizeFileName(req.body.originalname as string);
   if (!fileName) {
-    res.status(400).send({ message: "originalname name is required." });
+    const errMsg: IApiError = {
+      message: {
+        fileName: "originalname name is required.",
+      },
+    };
+    res.status(400).send(errMsg);
+    return;
+  }
+
+  const folderId = req.body.folderId as string;
+  if (!folderId) {
+    const errMsg: IApiError = {
+      message: {
+        folderId: "Folder ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
@@ -133,6 +185,7 @@ export async function handleUploadImage(req: Request, res: Response) {
     size: fileSize,
     type: EFileType.MEDIA,
     extension,
+    folderId,
   });
 
   fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
@@ -146,6 +199,7 @@ export async function handleUploadImage(req: Request, res: Response) {
     name: fileName,
     size: fileSize,
     type: EFileType.MEDIA,
+    folderId,
     extension,
     uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
@@ -157,19 +211,38 @@ export async function handleUploadImage(req: Request, res: Response) {
 export async function handleUploadVideo(req: Request, res: Response) {
   const userId = req.body.userId as string;
   if (!userId) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   if (!req.file) {
-    res.status(400).send({ message: "No video file uploaded." });
+    const errMsg: IApiError = {
+      message: {
+        file: "No video file uploaded.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   try {
     const chunkNumber = Number(req.body.chunkNumber);
     const totalChunks = Number(req.body.totalChunk);
-    const fileName = req.body.originalname.replace(/\s+/g, "");
+    const fileName = normalizeFileName(req.body.originalname as string);
+    if (!fileName) {
+      const errMsg: IApiError = {
+        message: {
+          fileName: "originalname name is required.",
+        },
+      };
+      res.status(400).send(errMsg);
+      return;
+    }
 
     if (chunkNumber === totalChunks - 1) {
       await mergeChunks(fileName, totalChunks);
@@ -197,31 +270,67 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
   const userId = req.body.userId as string;
 
   if (!userId) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const userName = req.body.userName as string;
   if (!userName) {
-    res.status(400).send({ message: "User name is required." });
+    const errMsg: IApiError = {
+      message: {
+        userName: "User name is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const fileName = req.body.fileName as string;
   if (!fileName) {
-    res.status(400).send({ message: "originalname name is required." });
+    const errMsg: IApiError = {
+      message: {
+        fileName: "originalname name is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const fileSize = req.body.fileSize as number;
   if (!fileSize) {
-    res.status(400).send({ message: "File size is required." });
+    const errMsg: IApiError = {
+      message: {
+        fileSize: "File size is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const mimetype = req.body.mimetype as string;
   if (!mimetype) {
-    res.status(400).send({ message: "File type is required." });
+    const errMsg: IApiError = {
+      message: {
+        mimetype: "File type is required.",
+      },
+    };
+    res.status(400).send(errMsg);
+    return;
+  }
+
+  const folderId = req.body.folderId as string;
+  if (!folderId) {
+    const errMsg: IApiError = {
+      message: {
+        folderId: "Folder ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
@@ -233,6 +342,7 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
     size: fileSize,
     type: EFileType.MEDIA,
     extension,
+    folderId,
   });
 
   fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
@@ -247,6 +357,7 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
     size: fileSize,
     type: EFileType.MEDIA,
     extension,
+    folderId,
     uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
   };
@@ -257,32 +368,56 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
 export async function handleDownloadFile(req: Request, res: Response) {
   const userId = req.query?.userId as string;
   if (userId === undefined || userId === null) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const fileId = req.params?.id as string;
   if (!fileId) {
-    res.status(400).send({ message: "File ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "File ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
   const file = await getFileById(fileId);
   if (!file) {
-    res.status(404).send({ message: "File not found in database." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "File not found in database.",
+      },
+    };
+    res.status(404).send(errMsg);
     return;
   }
 
   const filePath = getFilePath(fileId);
   if (!fs.existsSync(filePath)) {
-    res.status(404).send({ message: "File not found in system." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "File not found in system.",
+      },
+    };
+    res.status(404).send(errMsg);
     await deleteFile(fileId);
     return;
   }
 
   res.download(filePath, (err) => {
     if (err) {
-      console.error("File download error:", err);
-      res.status(500).send({ message: "Failed to download file." });
+      const errMsg: IApiError = {
+        message: {
+          filePath: "Failed to download file.",
+        },
+      };
+      res.status(500).send(errMsg);
     }
   });
 }
@@ -290,35 +425,62 @@ export async function handleDownloadFile(req: Request, res: Response) {
 export async function handleDeleteFile(req: Request, res: Response) {
   const userId = req.query?.userId;
   if (userId === undefined || userId === null) {
-    res.status(400).send({ message: "User ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        userId: "User ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const fileId = req.params.id;
   if (!fileId) {
-    res.status(400).send({ message: "File ID is required." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "File ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
   const file = await getFileById(fileId);
   if (!file) {
-    res.status(404).send({ message: "File not found." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "File not found.",
+      },
+    };
+    res.status(404).send(errMsg);
     return;
   }
 
   if (file.userId !== userId) {
-    res
-      .status(403)
-      .send({ message: "You do not have permission to delete this file." });
+    const errMsg: IApiError = {
+      message: {
+        fileId: "You do not have permission to delete this file.",
+      },
+    };
+    res.status(403).send(errMsg);
     return;
   }
 
-  const filePath = getFilePath(fileId);
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error("File deletion error:", err);
-    }
-  });
-  await deleteFile(fileId);
-  res.status(200).send({ message: "File deleted successfully." });
+  try {
+    const filePath = getFilePath(fileId);
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("File deletion error:", err);
+      }
+    });
+    await deleteFile(fileId);
+    res.status(200).send({ message: "File deleted successfully." });
+  } catch (err: any) {
+    const errMsg: IApiError = {
+      message: {
+        filePath: "Failed to delete file.",
+      },
+    };
+    res.status(500).send(errMsg);
+  }
 }

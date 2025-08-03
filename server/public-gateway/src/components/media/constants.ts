@@ -10,3 +10,4 @@ export const IMAGES_FILE_TYPES = [
   ".svg",
 ];
 export const ALLOWED_FILE_TYPES = [...VIDEO_FILE_TYPES, ...IMAGES_FILE_TYPES];
+export const MEDIA_ROOT_FOLDER_ID = "root-media";

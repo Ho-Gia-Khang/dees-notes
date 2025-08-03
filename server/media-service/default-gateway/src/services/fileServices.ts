@@ -8,6 +8,7 @@ import {
 
 export async function getAllFiles(
   userId: string,
+  folderId: string,
   page: number = DEFAULT_PAGE,
   pageSize: number = DEFAULT_PAGE_SIZE
 ) {
@@ -17,6 +18,7 @@ export async function getAllFiles(
       where: {
         userId,
         type: EFileType.MEDIA,
+        folderId,
       },
       pagination: {
         page,

@@ -18,3 +18,6 @@ export const CHUNK_SIZE_LIMIT_MB = CHUNK_SIZE_MB * 1024 * 1024; // Convert MB to
 
 const FILE_SIZE_MB = 50; // 50 MB
 export const FILE_SIZE_LIMIT_MB = FILE_SIZE_MB * 1024 * 1024; // Convert MB to bytes
+
+export const SHARED_FOLDER_ID = "media-shared";
+export const ROOT_FOLDER_ID = "root-media";

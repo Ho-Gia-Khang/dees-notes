@@ -7,13 +7,14 @@ import {
 } from "../constants";
 import fs from "fs-extra";
 import { Request } from "express";
+import { normalizeFileName } from "../utils";
 
 const uploadVideoStorage = multer.diskStorage({
   destination: async (_, __, cb) => {
     cb(null, uploadPathChunks);
   },
   filename: (_: Request, file, cb) => {
-    const baseFileName = file.originalname.replace(/\s+/g, "");
+    const baseFileName = normalizeFileName(file.originalname);
 
     fs.readdir(uploadPathChunks, (err, files) => {
       if (err) {
@@ -61,7 +62,7 @@ const uploadImageStorage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (_: Request, file, cb) => {
-    const baseFileName = file.originalname.replace(/\s+/g, "");
+    const baseFileName = normalizeFileName(file.originalname);
     cb(null, baseFileName);
   },
 });

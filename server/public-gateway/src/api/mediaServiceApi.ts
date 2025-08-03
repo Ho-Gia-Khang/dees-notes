@@ -11,9 +11,19 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
   const httpClient = useHttpClient();
   const { state } = useAuthStore();
 
-  async function getMediaList(query: ApiListRequest): Promise<any> {
+  async function getFoldersList(query: ApiListRequest) {
     const params = buildSearchParams(query);
-    return await httpClient.httpGet(`${BASE_MEDIA_URL}/${state.userId}?${params?.toString()}`);
+    return await httpClient.httpGet(
+      `${BASE_MEDIA_URL}/folders/${state.userId}?${params?.toString()}`,
+    );
+  }
+
+  async function getMediaList(folderId: string, query: ApiListRequest): Promise<any> {
+    const params = buildSearchParams(query);
+    if (params) {
+      params.set("userId", state.userId);
+    }
+    return await httpClient.httpGet(`${BASE_MEDIA_URL}/files/${folderId}?${params?.toString()}`);
   }
 
   async function goToPlayer(): Promise<any> {
@@ -30,7 +40,12 @@ const useMediaServiceApi = defineStore("mediaServiceApi", () => {
     await httpClient.httpDownload(url, fileName);
   }
 
-  return { getMediaList, goToPlayer, deleteFile, downloadFile };
+  async function deleteFolder(folderId: string): Promise<void> {
+    const url = `${BASE_MEDIA_URL}/folders/delete/${folderId}?userId=${state.userId}`;
+    return await httpClient.httpDelete(url);
+  }
+
+  return { getMediaList, goToPlayer, deleteFile, downloadFile, getFoldersList, deleteFolder };
 });
 
 export default useMediaServiceApi;

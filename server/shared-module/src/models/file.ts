@@ -12,6 +12,7 @@ export interface IFile {
   name: string;
   size: number;
   type: EFileType;
+  folderId: string;
   userId: string;
   extension: string;
   uploadedAt: Date; // Using Date type to match Prisma schema

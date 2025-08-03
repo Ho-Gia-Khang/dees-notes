@@ -1,13 +1,15 @@
 import type { Express } from "express";
 import express from "express";
-import config from "./config/config";
-import mediaRouter from "./routes";
-import { uploadPath, uploadPathChunks } from "./constants";
 import fs from "fs-extra";
+import config from "./config/config";
+import { uploadPath, uploadPathChunks } from "./constants";
+import { checkRootFolderStatus } from "./middlewares/checkRootFolder";
+import mediaRouter from "./routes";
 
 const app: Express = express();
 
 app.use(express.json());
+app.use(checkRootFolderStatus);
 
 app.use("/", mediaRouter);
 

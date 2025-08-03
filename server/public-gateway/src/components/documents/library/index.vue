@@ -15,11 +15,15 @@
       @delete="onDeleteFile"
       @download="onDownloadFile"
     />
+
+    <Paginator v-model="state.query" :total="state.total" :disabled="state.isWorking" />
   </div>
 </template>
 
 <script setup lang="ts">
 import FileUploader from "@/components/shared/file-uploader.vue";
+import Paginator from "@/components/shared/paginator.vue";
+
 import useDocumentStore from "@/stores/document";
 
 import { provideUploadController } from "@/api/uploadController";
@@ -159,9 +163,10 @@ async function onDownloadFile(event: { fileId: string; fileName: string }) {
 @use "@/assets/shared.scss";
 
 .document_library {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: min-content 1fr min-content;
   padding: 0 10px;
+  height: 100%;
 
   &-header {
     display: flex;
