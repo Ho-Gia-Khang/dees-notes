@@ -1,5 +1,7 @@
 import useDocumentServiceApi from "@/api/documentServiceApi";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants";
 import type { IFile } from "@/types/document/file";
+import type { ApiListRequest } from "@/types/shared/common";
 import { defineStore } from "pinia";
 import { onMounted, ref } from "vue";
 
@@ -8,10 +10,16 @@ const useDocumentStore = defineStore("document", () => {
 
   const documentsList = ref<IFile[]>([]);
   const isWorking = ref(false);
+  const query = ref<ApiListRequest>({
+    page: DEFAULT_PAGE,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
+  const total = ref(0);
 
   async function getDocumentsListIntermediate() {
-    const response = await documentApi.getDocumentsList();
+    const response = await documentApi.getDocumentsList(query.value);
     documentsList.value = response.items;
+    total.value = response.total;
   }
 
   async function getDocumentsList() {
@@ -61,6 +69,8 @@ const useDocumentStore = defineStore("document", () => {
     state: {
       documentsList,
       isWorking,
+      query,
+      total,
     },
     getDocumentsList,
     deleteFile,

@@ -7,6 +7,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && prisma generate && tsc --project ./tsconfig.json",
+    "type-check": "tsc --project ./ --noEmit",
     "type-check:test": "tsc --project ./tsconfig.test.json --noEmit",
     "prepublish": "npm run build",
     "prisma:generate": "prisma generate",

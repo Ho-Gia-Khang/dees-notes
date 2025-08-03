@@ -9,14 +9,14 @@
       :allowed-file-types="ALLOWED_FILE_TYPES"
       :batch-size="BATCH_SIZE"
       :loaded-files="parsedMediaList"
-      :loading="isUploading || state.isWorking"
+      :loading="isUploading || state.isMediaWorking"
       v-model="fileIntermediates"
       @upload="startUpload"
       @delete="onDeleteFile"
       @download="onDownloadFile"
     />
 
-    <Paginator v-model="state.query" :total="state.total" :disabled="state.isWorking" />
+    <Paginator v-model="state.query" :total="state.totalMedia" :disabled="state.isMediaWorking" />
   </div>
 </template>
 <script setup lang="ts">
@@ -33,8 +33,8 @@ import {
 
 import { provideChunkedUploadController } from "@/api/chunkedUploadController";
 import { provideUploadController } from "@/api/uploadController";
-import type { IFile } from "@/types/document/file";
 import { computed, nextTick, ref, watch } from "vue";
+import type { IFile } from "@/types/shared/files";
 
 const BATCH_SIZE = 3;
 
@@ -143,10 +143,10 @@ async function handleFileUpload(file: IFileIntermediate) {
 }
 
 const parsedMediaList = computed<IFileIntermediate[]>(() =>
-  (state.mediaList ?? []).map<IFileIntermediate>((doc) => ({
+  (state.mediaList ?? []).map<IFileIntermediate>((doc: IFile) => ({
     id: doc.id,
     name: doc.name,
-    type: doc.type,
+    type: doc.extension,
     size: doc.size,
     status: EUploadStatus.Done,
   })),

@@ -7,3 +7,5 @@ export const ALLOWED_FILE_TYPES = [
   ".xlsx",
   ".csv",
 ];
+
+export const ROOT_FOLDER_ID = "root-document";

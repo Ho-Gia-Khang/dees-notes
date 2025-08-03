@@ -1,7 +1,8 @@
 import useMediaServiceApi from "@/api/mediaServiceApi";
+import { MEDIA_ROOT_FOLDER_ID } from "@/components/media/constants";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants";
-import type { IFile } from "@/types/document/file";
 import type { ApiListRequest } from "@/types/shared/common";
+import type { IFile, IFolder } from "@/types/shared/files";
 import { defineStore } from "pinia";
 import { onMounted, ref } from "vue";
 
@@ -9,29 +10,54 @@ const useMediaStore = defineStore("media", () => {
   const mediaApi = useMediaServiceApi();
 
   const mediaList = ref<IFile[]>([]);
-  const isWorking = ref(false);
+  const foldersList = ref<IFolder[]>([]);
+  const isFolderWorking = ref(false);
+  const isMediaWorking = ref(false);
   const query = ref<ApiListRequest>({
     page: DEFAULT_PAGE,
     pageSize: DEFAULT_PAGE_SIZE,
   });
-  const total = ref(0);
+  const totalMedia = ref(0);
+  const totalFolders = ref(0);
+  const folderId = ref<string | undefined>();
 
-  async function getMediaListIntermediate() {
-    const response = await mediaApi.getMediaList(query.value);
-    mediaList.value = response.items;
-    total.value = response.total;
+  async function getFoldersListIntermediate() {
+    const response = await mediaApi.getFoldersList(query.value);
+    foldersList.value = response.items;
+    totalFolders.value = response.total;
   }
 
-  async function getMediaList() {
-    if (isWorking.value) return;
+  async function getMediaListIntermediate(folderId: string) {
+    const response = await mediaApi.getMediaList(folderId, query.value);
+    mediaList.value = response.items;
+    totalMedia.value = response.total;
+  }
+
+  async function getFoldersList() {
+    if (isFolderWorking.value) return;
     try {
-      isWorking.value = true;
-      await getMediaListIntermediate();
+      isFolderWorking.value = true;
+      await getFoldersListIntermediate();
+    } catch (error) {
+      console.error("Error fetching folders list:", error);
+      throw error;
+    } finally {
+      isFolderWorking.value = false;
+    }
+  }
+
+  async function getMediaList(externalFolderId?: string) {
+    if (isMediaWorking.value) return;
+    const targetFolder = externalFolderId ?? folderId.value;
+    if (!targetFolder) return;
+    try {
+      isMediaWorking.value = true;
+      await getMediaListIntermediate(targetFolder);
     } catch (error) {
       console.error("Error fetching media list:", error);
       throw error;
     } finally {
-      isWorking.value = false;
+      isMediaWorking.value = false;
     }
   }
 
@@ -48,47 +74,69 @@ const useMediaStore = defineStore("media", () => {
   }
 
   async function deleteFile(fileId: string) {
-    if (isWorking.value) return;
+    if (isMediaWorking.value || !folderId.value) return;
 
     try {
-      isWorking.value = true;
+      isMediaWorking.value = true;
       await mediaApi.deleteFile(fileId);
       // Refresh the media list after deletion
-      await getMediaListIntermediate();
+      await getMediaListIntermediate(folderId.value);
     } catch (error) {
       console.error("Error deleting file:", error);
       throw error;
     } finally {
-      isWorking.value = false;
+      isMediaWorking.value = false;
+    }
+  }
+
+  async function deleteFolder(targetFolderId: string) {
+    if (isFolderWorking.value) return;
+    if (targetFolderId === MEDIA_ROOT_FOLDER_ID) return;
+    try {
+      isFolderWorking.value = true;
+      await mediaApi.deleteFolder(targetFolderId);
+      // Refresh the folder list after deletion
+      await getFoldersListIntermediate();
+      folderId.value = MEDIA_ROOT_FOLDER_ID;
+    } catch (error) {
+      console.error("Error deleting folder:", error);
+      throw error;
+    } finally {
+      isFolderWorking.value = false;
     }
   }
 
   async function downloadFile(fileId: string, fileName?: string) {
-    if (isWorking.value) return;
+    if (isMediaWorking.value) return;
     try {
-      isWorking.value = true;
+      isMediaWorking.value = true;
       await mediaApi.downloadFile(fileId, fileName);
     } catch (error) {
       console.error("Error downloading file:", error);
       throw error;
     } finally {
-      isWorking.value = false;
+      isMediaWorking.value = false;
     }
   }
 
-  onMounted(getMediaList);
+  onMounted(getMediaList(MEDIA_ROOT_FOLDER_ID));
 
   return {
     state: {
       mediaList,
-      isWorking,
-      total,
+      foldersList,
+      isFolderWorking,
+      isMediaWorking,
+      totalMedia,
+      totalFolders,
       query,
     },
     getMediaList,
     goToPlayer,
     deleteFile,
     downloadFile,
+    getFoldersList,
+    deleteFolder,
   };
 });
 

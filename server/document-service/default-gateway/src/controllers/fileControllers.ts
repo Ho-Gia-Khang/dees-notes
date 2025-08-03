@@ -3,7 +3,12 @@ import { UploadedFile } from "express-fileupload/index";
 import path from "path";
 import fs from "fs-extra";
 
-import { deleteFile, getAllFiles, getFileById, saveFile } from "./services";
+import {
+  deleteFile,
+  getAllFiles,
+  getFileById,
+  saveFile,
+} from "../services/fileServices";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -24,10 +29,21 @@ async function getFilePath(fileId: string, ext: string): Promise<string> {
   return path.join(uploadPath, fileId + "." + ext);
 }
 
-export async function getDocumentsList(req: Request, res: Response) {
-  const userId = req.params?.userId as string;
+export async function getDocumentsListHandler(req: Request, res: Response) {
+  const userId = req.query?.userId as string;
   if (!userId) {
     res.status(400).send({ message: "User ID is required." });
+    return;
+  }
+
+  const folderId = req.params?.folderId as string;
+  if (!folderId) {
+    const errMsg: IApiError = {
+      message: {
+        folderId: "Folder ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
     return;
   }
 
@@ -35,7 +51,7 @@ export async function getDocumentsList(req: Request, res: Response) {
   const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
 
   try {
-    const queriedData = await getAllFiles(userId, page, pageSize);
+    const queriedData = await getAllFiles(userId, folderId, page, pageSize);
 
     const response: PaginatedResponse<IFileResponse> = {
       items: queriedData.items,
@@ -67,6 +83,17 @@ export async function handleUpload(req: Request, res: Response) {
     return;
   }
 
+  const folderId = req.params?.folderId as string;
+  if (!folderId) {
+    const errMsg: IApiError = {
+      message: {
+        folderId: "Folder ID is required.",
+      },
+    };
+    res.status(400).send(errMsg);
+    return;
+  }
+
   // We only support a single file upload at the moment
   if (Object.keys(files).length > 1) {
     res.status(400).send({ message: "Multiple files are not supported." });
@@ -81,6 +108,7 @@ export async function handleUpload(req: Request, res: Response) {
     name: file.name,
     uploadedBy: userName,
     size: file.size,
+    folderId,
     extension,
     type: EFileType.DOCUMENT,
   });
@@ -99,6 +127,7 @@ export async function handleUpload(req: Request, res: Response) {
     name: file.name,
     size: file.size,
     type: EFileType.DOCUMENT,
+    folderId,
     extension,
     uploadedAt: savedFile.uploadedAt.toISOString(),
     uploadedBy: savedFile.uploadedBy,

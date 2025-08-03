@@ -5,3 +5,6 @@
 
 // Export file-related interfaces
 export * from "./file";
+
+// Export folder-related interfaces
+export * from "./folder";

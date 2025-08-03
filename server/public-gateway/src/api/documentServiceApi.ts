@@ -1,8 +1,9 @@
 import useAuthStore from "@/stores/auth";
 import { defineStore } from "pinia";
 import useHttpClient from "./httpClient";
-import type { ApiListResponse } from "@/types/shared/common";
+import type { ApiListRequest, ApiListResponse } from "@/types/shared/common";
 import type { IFile } from "@/types/document/file";
+import { buildSearchParams } from "@/utils";
 
 const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
@@ -11,8 +12,15 @@ const useDocumentServiceApi = defineStore("documentServiceApi", () => {
   const httpClient = useHttpClient();
   const { state } = useAuthStore();
 
-  async function getDocumentsList(): Promise<ApiListResponse<IFile>> {
-    return await httpClient.httpGet(`${BASE_DOCUMENT_URL}/${state.userId}`);
+  async function getDocumentsList(
+    folderId: string,
+    query: ApiListRequest,
+  ): Promise<ApiListResponse<IFile>> {
+    const params = buildSearchParams(query);
+    if (params) {
+      params.set("folderId", folderId);
+    }
+    return await httpClient.httpGet(`${BASE_DOCUMENT_URL}/${state.userId}?${params?.toString()}`);
   }
 
   async function deleteFile(fileId: string): Promise<void> {
