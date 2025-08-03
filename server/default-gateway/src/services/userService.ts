@@ -102,6 +102,7 @@ export async function getAllUsers() {
     select: {
       id: true,
       phoneNumber: true,
+      userName: true,
       role: true,
       createdAt: true,
     },
