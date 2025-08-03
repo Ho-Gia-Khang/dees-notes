@@ -12,6 +12,7 @@
       class="admin_page-table"
     >
       <ElTableColumn prop="phoneNumber" label="Phone number" />
+      <ElTableColumn prop="userName" label="User name" />
       <ElTableColumn prop="createdAt" label="Created at" />
       <ElTableColumn prop="role" label="Role">
         <template #default="{ row }">

@@ -125,7 +125,7 @@ export async function handleDownloadFile(req: Request, res: Response) {
     return;
   }
 
-  const filePath = await getFilePath(fileId, file.type);
+  const filePath = await getFilePath(fileId, file.extension);
   if (!fs.existsSync(filePath)) {
     res.status(404).send({ message: "File not found in system." });
     await deleteFile(fileId);

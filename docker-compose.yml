@@ -44,42 +44,42 @@ services:
       - "3000:3000"
     networks:
       - public_net
-  # app:
-  #   container_name: app
-  #   build:
-  #     context: ./nginx
-  #     dockerfile: dockerfile
-  #   restart: unless-stopped
-  #   ports:
-  #     # These ports are in format <host-port>:<container-port>
-  #     - "80:8080" # Public HTTP Port
-  #     - "443:4443" # Public HTTPS Port
-  #     - "8181:8181" # Admin Web Port
-  #     # Add any other Stream port you want to expose
-  #     # - '21:21' # FTP
+  app:
+    container_name: app
+    build:
+      context: ./nginx
+      dockerfile: dockerfile
+    restart: unless-stopped
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - "80:8080" # Public HTTP Port
+      - "443:4443" # Public HTTPS Port
+      - "8181:8181" # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
 
-  #   # Uncomment the next line if you uncomment anything in the section
-  #   # environment:
-  #   # Uncomment this if you want to change the location of
-  #   # the SQLite DB file within the container
-  #   # DB_SQLITE_FILE: "/data/database.sqlite"
+    # Uncomment the next line if you uncomment anything in the section
+    # environment:
+    # Uncomment this if you want to change the location of
+    # the SQLite DB file within the container
+    # DB_SQLITE_FILE: "/data/database.sqlite"
 
-  #   # Uncomment this if IPv6 is not enabled on your host
-  #   # DISABLE_IPV6: 'true'
+    # Uncomment this if IPv6 is not enabled on your host
+    # DISABLE_IPV6: 'true'
 
-  #   volumes:
-  #     # - ./nginx/data:/data
-  #     # - ./nginx/letsencrypt:/etc/letsencrypt:Z
-  #     - "./nginx:/config:rw"
+    volumes:
+      # - ./nginx/data:/data
+      # - ./nginx/letsencrypt:/etc/letsencrypt:Z
+      - "./nginx:/config:rw"
 
-  # cloudflare-ddns:
-  #   build:
-  #     context: ./cloudflare-ddns
-  #     dockerfile: dockerfile
-  #   container_name: cloudflare-ddns
-  #   volumes:
-  #     - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
-  #   restart: unless-stopped
+  cloudflare-ddns:
+    build:
+      context: ./cloudflare-ddns
+      dockerfile: dockerfile
+    container_name: cloudflare-ddns
+    volumes:
+      - ./cloudflare-ddns:/usr/local/bin/cloudflare-ddns
+    restart: unless-stopped
 
   ############################################################
   ### private services, only accessible by 'public-gateway'###
@@ -92,8 +92,8 @@ services:
       dockerfile: media-service/dockerfile
     container_name: media
     volumes:
-      - ./server/media-service/default-gateway/assets:/assets:rw
-      - ./server/media-service/default-gateway/chunks:/chunks:rw
+      - ./server/media-service/default-gateway/assets:/app/assets:rw
+      - ./server/media-service/default-gateway/chunks:/app/chunks:rw
     networks:
       - public_net
   # jellyfin - the media server
@@ -127,7 +127,7 @@ services:
       dockerfile: document-service/dockerfile
     container_name: document
     volumes:
-      - ./server/document-service/default-gateway/assets:/assets
+      - ./server/document-service/default-gateway/assets:/app/assets
     networks:
       - public_net
 

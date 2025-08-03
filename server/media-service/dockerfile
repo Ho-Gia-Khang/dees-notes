@@ -44,8 +44,7 @@ COPY --from=service-builder /app/dist ./dist
 COPY --from=service-builder /app/package.json ./
 
 # Create necessary directories and set proper ownership
-RUN mkdir -p /app/assets /app/chunks && \
-    chown -R node:node /app
+RUN chown -R node:node /app
 
 ENV PORT=3001
 

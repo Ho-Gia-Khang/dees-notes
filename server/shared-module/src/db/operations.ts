@@ -25,11 +25,9 @@ type ModelName = Prisma.ModelName;
  * Generic CRUD operations for Prisma models
  */
 export class DatabaseOperations<T extends Record<string, any>> {
-  private modelName: string;
   private model: any;
 
   constructor(modelName: ModelName) {
-    this.modelName = modelName;
     // Convert model name to lowercase for accessing prisma client
     const modelKey = modelName.toLowerCase() as PrismaModels;
     this.model = prisma[modelKey];
