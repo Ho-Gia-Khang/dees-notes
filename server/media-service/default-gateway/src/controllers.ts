@@ -5,7 +5,12 @@ import path from "path";
 import { uploadPath, uploadPathChunks } from "./constants";
 import { deleteFile, getAllFiles, getFileById, saveFile } from "./services";
 import { delay } from "./utils";
-import { IFileResponse } from "@dees-notes/shared-module";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  EFileType,
+  IFileResponse,
+} from "@dees-notes/shared-module";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 1000; // 1 second
@@ -25,7 +30,10 @@ export async function getFilesList(req: Request, res: Response) {
     return;
   }
 
-  const items = await getAllFiles(userId);
+  const page = Number(req.query?.page) || DEFAULT_PAGE;
+  const pageSize = Number(req.query?.pageSize) || DEFAULT_PAGE_SIZE;
+
+  const items = await getAllFiles(userId, page, pageSize);
   const totals = items.length;
   res.status(200).send({
     items,
@@ -104,13 +112,14 @@ export async function handleUploadImage(req: Request, res: Response) {
 
   const mimetype = req.file.mimetype as string;
 
-  const type = mimetype.split("/")[1];
+  const extension = mimetype.split("/")[1];
   const savedFile = await saveFile({
     userId,
     name: fileName,
     uploadedBy: userName,
     size: fileSize,
-    type,
+    type: EFileType.MEDIA,
+    extension,
   });
 
   fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
@@ -123,7 +132,8 @@ export async function handleUploadImage(req: Request, res: Response) {
     id: savedFile.id,
     name: fileName,
     size: fileSize,
-    type,
+    type: EFileType.MEDIA,
+    extension,
     uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
   };
@@ -202,13 +212,14 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
     return;
   }
 
-  const type = mimetype.split("/")[1];
+  const extension = mimetype.split("/")[1];
   const savedFile = await saveFile({
     userId,
     name: fileName,
     uploadedBy: userName,
     size: fileSize,
-    type,
+    type: EFileType.MEDIA,
+    extension,
   });
 
   fs.rename(getFilePath(fileName), getFilePath(savedFile.id), (err) => {
@@ -221,7 +232,8 @@ export async function handleUploadVideoComplete(req: Request, res: Response) {
     id: savedFile.id,
     name: fileName,
     size: fileSize,
-    type,
+    type: EFileType.MEDIA,
+    extension,
     uploadedAt: savedFile.uploadedAt,
     uploadedBy: savedFile.uploadedBy,
   };

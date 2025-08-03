@@ -2,6 +2,8 @@
  * File-related interfaces for use across services
  */
 
+import { EFileType } from "@prisma/client";
+
 /**
  * Base file interface matching Prisma schema
  */
@@ -9,8 +11,9 @@ export interface IFile {
   id: string;
   name: string;
   size: number;
-  type: string;
+  type: EFileType;
   userId: string;
+  extension: string;
   uploadedAt: Date; // Using Date type to match Prisma schema
   uploadedBy: string;
 }
