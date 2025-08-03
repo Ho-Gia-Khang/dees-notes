@@ -6,13 +6,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec npx ts-node src/index.ts",
     "start": "node src/index.ts",
-    "build": "tsc --project ./"
+    "build": "tsc --project ./",
+    "type-check": "tsc --project ./ --noEmit"
   },
   "keywords": [],
   "author": "KhanZa",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@dees-notes/shared-module": "file:../../shared-module",
     "@prisma/client": "^6.11.1",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",

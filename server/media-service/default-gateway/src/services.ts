@@ -1,6 +1,7 @@
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
+  EFileType,
   fileOperations,
   IFileInput,
 } from "@dees-notes/shared-module";
@@ -12,12 +13,15 @@ export async function getAllFiles(
 ) {
   try {
     // Using the fileOperations from shared module
-    return await fileOperations.findMany({
+    return await fileOperations.findPaginated({
       where: {
         userId,
+        type: EFileType.MEDIA,
       },
-      skip: page * pageSize,
-      take: pageSize,
+      pagination: {
+        page,
+        pageSize,
+      },
     });
   } catch (err: any) {
     console.error(err);
