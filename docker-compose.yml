@@ -88,8 +88,8 @@ services:
   # media gateway - the gateway for public gateway to access media service:
   media:
     build:
-      context: ./server/media-service
-      dockerfile: dockerfile
+      context: ./server
+      dockerfile: media-service/dockerfile
     container_name: media
     volumes:
       - ./server/media-service/default-gateway/assets:/assets:rw
@@ -123,8 +123,8 @@ services:
   # Document service
   document:
     build:
-      context: ./server/document-service
-      dockerfile: dockerfile
+      context: ./server
+      dockerfile: document-service/dockerfile
     container_name: document
     volumes:
       - ./server/document-service/default-gateway/assets:/assets

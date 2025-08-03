@@ -1,38 +1,56 @@
-# Stage 1: build the application
-FROM node:23-alpine AS builder
+FROM node:23-alpine AS shared-builder
 
-COPY /default-gateway/package*.json ./
-COPY /default-gateway/src ./src
-COPY /default-gateway/tsconfig.json ./
-COPY /default-gateway/prisma ./prisma
+# Build shared module first
+WORKDIR /app/shared-module
 
-ENV PORT=3001 \
-    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/media?schema=public
-
+# Copy all shared module files first (needed for prisma generate)
+COPY shared-module/ ./
 RUN npm ci
-
+RUN npm run build:docker
 RUN npx prisma migrate deploy
-RUN npx prisma generate
 
+# Main service build stage
+FROM node:23-alpine AS service-builder
+
+WORKDIR /app
+
+# Copy package files and install dependencies first (without shared module)
+COPY media-service/default-gateway/package.json ./
+RUN sed -i '/@dees-notes\/shared-module/d' package.json
+RUN npm install
+
+# Copy source files
+COPY media-service/default-gateway/src ./src
+COPY media-service/default-gateway/tsconfig.json ./
+
+# Copy built shared module to node_modules after npm install
+RUN mkdir -p node_modules/@dees-notes/shared-module
+COPY --from=shared-builder /app/shared-module ./node_modules/@dees-notes/shared-module
+
+# Build the service
 RUN npm run build
 
-# Stage 2: run the application as user node
+# Production stage
 FROM node:23-alpine
 
-ENV PORT=3001 \
-    DATABASE_URL=postgresql://postgres:prisma@host.docker.internal:5432/media?schema=public
+WORKDIR /app
 
-COPY --from=builder /dist ./dist
-COPY --from=builder /prisma ./prisma
-COPY --from=builder /node_modules ./node_modules
-COPY package*.json ./
+# Copy built shared module to node_modules
+COPY --from=shared-builder /app/shared-module /app/node_modules/@dees-notes/shared-module
 
-WORKDIR /dist
+# Copy service files
+COPY --from=service-builder /app/node_modules ./node_modules
+COPY --from=service-builder /app/dist ./dist
+COPY --from=service-builder /app/package.json ./
 
-# USER node
+# Create necessary directories and set proper ownership
+RUN mkdir -p /app/assets /app/chunks && \
+    chown -R node:node /app
 
-# RUN chmod -R a+rw ./chunks
+ENV PORT=3001
+
+USER node
 
 EXPOSE ${PORT}
 
-CMD ["node", "index.js"]
+CMD ["node", "dist/index.js"]

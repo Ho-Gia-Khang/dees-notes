@@ -154,7 +154,9 @@ export const deleteUser = async (req: Request, res: Response) => {
       await deleteSessions({ userId: user.id, valid: false });
     }
 
-    res.sendStatus(EHttpStatusCode.OK);
+    res
+      .status(EHttpStatusCode.OK)
+      .send({ message: "User deleted successfully" });
   } catch (e: any) {
     console.error(e);
     res

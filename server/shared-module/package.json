@@ -5,13 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run clean && prisma generate && tsc --project ./tsconfig.json",
+    "build": "prisma generate && tsc --project ./tsconfig.json",
+    "build:local": "cp .env.local .env && npm run build",
+    "build:docker": "cp .env.docker .env && npm run build",
     "type-check:test": "tsc --project ./tsconfig.test.json --noEmit",
-    "prepublish": "npm run build",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

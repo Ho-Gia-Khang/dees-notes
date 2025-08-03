@@ -38,11 +38,13 @@ const useUserApi = defineStore("userApi", () => {
     },
     create: async (
       phoneNumber: string,
+      userName: string,
       password: string,
       confirmPassword: string,
     ): Promise<any> => {
       return await httpClient.httpPost(`${BASE_USER_URL}/create`, {
         phoneNumber,
+        userName,
         password,
         passwordConfirmation: confirmPassword,
       });

@@ -23,6 +23,20 @@
           :message="error.emptyPhoneNumber"
         />
 
+        <LabeledInput label="User name" required>
+          <ElInput
+            v-model="createAccountModel.userName"
+            :disabled="userState.isWorking"
+            placeholder="Enter your user name"
+            class="input"
+            @blur="touched.userName = true"
+          />
+        </LabeledInput>
+        <SmallErrMsg
+          v-if="touched.userName && error.emptyUserName"
+          :message="error.emptyUserName"
+        />
+
         <LabeledInput label="Password" required>
           <ElInput
             v-model="createAccountModel.password"
@@ -114,12 +128,14 @@ const emits = defineEmits(["cancel"]);
 
 const createAccountModel = reactive({
   phoneNumber: "",
+  userName: "",
   password: "",
   confirmPassword: "",
 });
 
 const error = reactive({
   emptyPhoneNumber: "",
+  emptyUserName: "",
   emptyPassword: "",
   emptyConfirmPassword: "",
   confirmPasswordMismatch: "",
@@ -127,12 +143,14 @@ const error = reactive({
 
 const touched = reactive({
   phoneNumber: false,
+  userName: false,
   password: false,
   confirmPassword: false,
 });
 
 const isFormValid = () => {
   error.emptyPhoneNumber = createAccountModel.phoneNumber ? "" : "Phone number is required";
+  error.emptyUserName = createAccountModel.userName ? "" : "User name is required";
   error.emptyPassword = createAccountModel.password ? "" : "Password is required";
   error.emptyConfirmPassword = createAccountModel.confirmPassword
     ? ""
@@ -159,6 +177,7 @@ async function handleCreateAccount() {
 
   await createUser(
     createAccountModel.phoneNumber,
+    createAccountModel.userName,
     createAccountModel.password,
     createAccountModel.confirmPassword,
   );

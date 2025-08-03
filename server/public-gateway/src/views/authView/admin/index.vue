@@ -26,7 +26,10 @@
             :icon="Delete"
             plain
             :disabled="userState.isWorking || row.role === ERoles.ADMIN"
-            @click="isDeletingUser = true"
+            @click="
+              selectingUser = row;
+              isDeletingUser = true;
+            "
           />
         </template>
       </ElTableColumn>
@@ -66,20 +69,24 @@ import { onBeforeMount, ref } from "vue";
 const { state: authState } = useAuthStore();
 const { state: userState, fetchUsersList, deleteMemberAccount } = useUserStore();
 
+const selectingUser = ref<IUser | null>(null);
+
 const isCreatingUser = ref(false);
 const isDeletingUser = ref(false);
 
-async function handleDeleteUser(user: IUser) {
+async function handleDeleteUser() {
+  if (!selectingUser.value) return;
+
   if (!authState.isAdmin) {
-    console.warn("Unauthorized attempt to delete user:", user);
+    console.warn("Unauthorized attempt to delete user:", selectingUser.value.userName);
     return; // Prevent unauthorized deletion
   }
-  if (!user.id || user.role === "admin") {
+  if (selectingUser.value.role === ERoles.ADMIN) {
     return; // Prevent deletion of admin accounts
   }
 
   try {
-    await deleteMemberAccount(user.id);
+    await deleteMemberAccount(selectingUser.value.phoneNumber);
     await fetchUsersList(); // Refresh the user list after deletion
   } catch (error) {
     console.error("Failed to delete user:", error);

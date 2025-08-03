@@ -32,13 +32,18 @@ const useUserStore = defineStore("userStore", () => {
     }
   }
 
-  async function createUser(phoneNumber: string, password: string, confirmPassword: string) {
+  async function createUser(
+    phoneNumber: string,
+    userName: string,
+    password: string,
+    confirmPassword: string,
+  ) {
     try {
       if (isWorking.value) return;
 
       isWorking.value = true;
 
-      await userApi.create(phoneNumber, password, confirmPassword);
+      await userApi.create(phoneNumber, userName, password, confirmPassword);
       await fetchUsersListIntermediate(); // Refresh the users list after creating a new user
     } catch (error) {
       console.error("User creation failed:", error);
