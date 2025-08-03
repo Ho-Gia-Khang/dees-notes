@@ -107,6 +107,7 @@ export const updateUserHandler = async (
     }
 
     await updateUser(updateUserPayload);
+    res.status(EHttpStatusCode.OK).send(updateUserPayload);
   } catch (e: any) {
     console.error(e);
     res

@@ -10,6 +10,7 @@
 
         <div v-if="!isEditMode" class="profile_card-body">
           <p class="row"><strong>Phone Number:</strong> {{ profile.phoneNumber }}</p>
+          <p class="row"><strong>User name:</strong> {{ profile.userName }}</p>
           <p class="row">
             <strong>Role:</strong>
             <ElTag type="primary" v-if="profile.role === ERoles.ADMIN">Admin</ElTag>
@@ -22,6 +23,7 @@
           <p class="row">
             <strong>Phone Number:</strong> <ElInput v-model="profile.phoneNumber" />
           </p>
+          <p class="row"><strong>User name:</strong> <ElInput v-model="profile.userName" /></p>
           <p class="row">
             <strong>Role:</strong>
             <ElTag type="primary" v-if="profile.role === ERoles.ADMIN">Admin</ElTag>
