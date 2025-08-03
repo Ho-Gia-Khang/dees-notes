@@ -1,9 +1,24 @@
-import { fileOperations, IFileInput } from "@dees-notes/shared-module";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  fileOperations,
+  IFileInput,
+} from "@dees-notes/shared-module";
 
-export async function getAllFiles(userId: string) {
+export async function getAllFiles(
+  userId: string,
+  page: number = DEFAULT_PAGE,
+  pageSize: number = DEFAULT_PAGE_SIZE
+) {
   try {
     // Using the fileOperations from shared module
-    return await fileOperations.findByUserId(userId);
+    return await fileOperations.findMany({
+      where: {
+        userId,
+      },
+      skip: page * pageSize,
+      take: pageSize,
+    });
   } catch (err: any) {
     console.error(err);
     throw new Error("Error fetching files");

@@ -1,6 +1,6 @@
 import { File } from "@prisma/client";
+import { IFileInput } from "../models/file";
 import { DatabaseOperations } from "./operations";
-import { IFile, IFileInput, IFileResponse } from "../models/file";
 
 // File model operations
 export class FileOperations extends DatabaseOperations<File> {
